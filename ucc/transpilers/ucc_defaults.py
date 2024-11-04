@@ -30,7 +30,6 @@ class UCCDefault1:
             },
         }
         self.add_local_passes(local_iterations)
-        #self.add_cx_network_optimization()
 
     @property
     def default_passes(self):
