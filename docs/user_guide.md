@@ -57,8 +57,8 @@ UCC includes the following modules:
 ## Customization
 UCC offers different levels of customization, from settings accepted by the "default" pass `UCCDefault1` to the ability to add custom transpiler passes. 
 
-### Transpiler settings
-UCC compiler settings can be adjusted using the keyword arguments of the `ucc.compile()` function, as shown. 
+### Transpilation settings
+UCC settings can be adjusted using the keyword arguments of the `ucc.compile()` function, as shown. 
 
 ```python
 ucc.compile(
