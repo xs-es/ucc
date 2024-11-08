@@ -14,6 +14,7 @@ To install ``ucc`` run ::
    :caption: Contents:
 
    api.rst
+   user_guide.md
 
 
 
