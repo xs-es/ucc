@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="ucc",  # Package name
-    version="0.1.1",  
+    version="0.1.1",
     author="Jordan Sullivan",
     author_email="jordan@unitary.fund",
     description="Unitary Compiler Collection: A quantum circuit interface and compiler for multiple quantum frameworks",
@@ -21,17 +21,18 @@ setup(
     ],
     python_requires=">=3.12",  # Minimum Python version required
     install_requires=[
-        "qiskit>=0.41.0",  
-        "cirq>=0.13.0",  
-        "pytket>=1.30.0",  
+        "qiskit>=0.41.0",
+        "cirq>=0.13.0",
+        "pytket>=1.3.0",
         "qbraid>=0.7.3",
-        "ply"
+        "ply",
     ],
     extras_require={
         "dev": [
             "pytest>=6.0",  # Testing framework
             "pytest-cov>=2.10",  # Coverage plugin for pytest
         ],
+        "doc": ["sphinx==8.1.3"],
     },
     entry_points={
         "console_scripts": [
