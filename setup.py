@@ -19,7 +19,7 @@ setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.12",  # Minimum Python version required
+    python_requires="=3.12",  # Python version required
     install_requires=[
         "qiskit>=0.41.0",
         "cirq>=0.13.0",
