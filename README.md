@@ -10,9 +10,6 @@ The **Unitary Compiler Collection (UCC)** is a Python library for frontend-agnos
 
 ### Installation
 
-You will require **Python 3.12**. **Note:** the
-newest Python version 3.13 is not yet supported due to several dependencies not yet
-supporting it.
 
 ```bash
 git clone https://github.com/unitaryfund/ucc.git
