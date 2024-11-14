@@ -48,7 +48,7 @@ class UCCDefault1:
             self.pass_manager.append(UnitarySynthesis(basis_gates=self.target_basis))
             self.pass_manager.append(Optimize1qGatesDecomposition(basis=self._1q_basis))
             self.pass_manager.append(CollectCliffords())
-            self.pass_manager.append(HighLevelSynthesis(hls_config=HLSConfig(clifford=["default"])))
+            self.pass_manager.append(HighLevelSynthesis(hls_config=HLSConfig(clifford=["greedy"])))
 
             #Add following passes if merging single qubit rotations that are interrupted by a commuting 2 qubit gate is desired
             # self.pass_manager.append(Optimize1qGatesSimpleCommutation(basis=self._1q_basis))
