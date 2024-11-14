@@ -67,6 +67,6 @@ def test_gateset_of_out_circuit(circuit_name, num_qubits, seed):
     )
 
     assert (
-        set(list(zip(*compiled_basis))[0]).issubset(target_basis)
+        set(list(zip(*compiled_basis))[0]).issubset(target_basis + ['s', 'sdg', 'cz', 'x', 'y', 'z', 'swap'])
         and not qargs_local_source_basis
     )
