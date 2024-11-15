@@ -13,7 +13,8 @@ To install ``ucc`` run ::
    :maxdepth: 2
    :caption: Contents:
 
-   api.rst
+   API-doc <api.rst>
+   User Guide <user_guide.rst>
 
 
 
