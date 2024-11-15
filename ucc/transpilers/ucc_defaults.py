@@ -3,7 +3,6 @@ from qiskit.transpiler import PassManager
 from qiskit.circuit.equivalence_library import SessionEquivalenceLibrary as sel
 from qiskit.transpiler import CouplingMap
 from qiskit.transpiler.passes import CollectCliffords, HighLevelSynthesis, HLSConfig
-from qiskit.transpiler.passes.synthesis.high_level_synthesis import DefaultSynthesisClifford, DefaultSynthesisLinearFunction
 from qiskit.transpiler.passes.synthesis.unitary_synthesis import DefaultUnitarySynthesis
 
 
@@ -44,7 +43,7 @@ class UCCDefault1:
             self.pass_manager.append(Optimize1qGatesDecomposition())
             self.pass_manager.append(CommutativeCancellation(standard_gates=self.target_basis, special_commutations=self.special_commutations))
             self.pass_manager.append(Collect2qBlocks())
-            self.pass_manager.append(ConsolidateBlocks())
+            self.pass_manager.append(ConsolidateBlocks(force_consolidate=True))
             self.pass_manager.append(UnitarySynthesis(basis_gates=self.target_basis))
             self.pass_manager.append(Optimize1qGatesDecomposition(basis=self._1q_basis))
             self.pass_manager.append(CollectCliffords())
