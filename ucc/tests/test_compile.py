@@ -46,13 +46,7 @@ circuit_names = [
 @pytest.mark.parametrize("num_qubits", [4, 5, 6, 7, 8, 9, 10])
 @pytest.mark.parametrize("seed", [1, 326, 5678, 12345])
 def test_gateset_of_out_circuit(circuit_name, num_qubits, seed):
-    match circuit_name:
-        case "qcnn_circuit":
-            circuit = qcnn_circuit(num_qubits)
-        case "random_clifford_circuit":
-            circuit = random_clifford_circuit(num_qubits, seed)
-        case _:
-            raise ValueError("Invalid circuit name")
+    circuit = circuit_function(num_qubits, seed)
     transpiler = UCCDefault1()
     target_basis = transpiler.target_basis
     transpiled_circuit = transpiler.run(circuit)
