@@ -5,6 +5,7 @@ from qiskit.transpiler import CouplingMap
 from qiskit.transpiler.passes import CollectCliffords, HighLevelSynthesis, HLSConfig
 from qiskit.transpiler.passes.synthesis.unitary_synthesis import DefaultUnitarySynthesis
 
+
 from ..transpiler_passes import BasisTranslator, CommutativeCancellation, Collect2qBlocks, ConsolidateBlocks, UnitarySynthesis, Optimize1qGatesDecomposition, CXCancellation, SpectralMapping, SabreLayout
 
 from qiskit.transpiler.passes import Optimize1qGatesSimpleCommutation
@@ -65,6 +66,7 @@ class UCCDefault1:
         self.add_map_passes(coupling_list)
         out_circuits = self.pass_manager.run(circuits)
         return out_circuits
+
 
 
 
