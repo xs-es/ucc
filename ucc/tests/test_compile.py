@@ -37,7 +37,7 @@ def test_tket_compile():
 @pytest.mark.parametrize("circuit_function", [qcnn_circuit, random_clifford_circuit])
 @pytest.mark.parametrize("num_qubits", [4, 5, 6, 7, 8, 9, 10])
 @pytest.mark.parametrize("seed", [1, 326, 5678, 12345])
-def test_gateset_of_out_circuit(circuit_function, num_qubits, seed):
+def test_compilation_retains_gateset(circuit_function, num_qubits, seed):
     circuit = circuit_function(num_qubits, seed)
     transpiler = UCCDefault1()
     target_basis = transpiler.target_basis
