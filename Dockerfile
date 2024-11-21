@@ -11,8 +11,9 @@ WORKDIR /ucc
 RUN python3 -m venv /venv
 
 # Install the required dependencies and the ucc package itself
-# RUN /venv/bin/pip install --no-cache-dir -r /ucc/requirements.txt
-RUN /venv/bin/pip install .
+RUN /venv/bin/pip install --no-cache-dir -r /ucc/requirements.txt
+RUN /venv/bin/pip install -e . && /venv/bin/pip show ucc  
+
 
 # Make sure the shell script is executable
 RUN chmod +x /ucc/benchmarks/scripts/run_benchmarks.sh
