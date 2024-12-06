@@ -53,7 +53,7 @@ from qiskit.circuit.library.standard_gates import (
     RGate,
 )
 from qiskit.converters import circuit_to_dag, dag_to_circuit
-from qiskit.dagcircuit.dagcircuit import DAGCircuit, DAGOpNode
+from qiskit.dagcircuit import DAGCircuit, DAGOpNode
 from qiskit.exceptions import QiskitError
 from qiskit.providers.models.backendproperties import BackendProperties
 from qiskit.quantum_info import Operator
