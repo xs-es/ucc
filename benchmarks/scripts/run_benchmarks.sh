@@ -24,7 +24,7 @@ trap 'echo "All jobs killed"; exit' SIGINT SIGTERM
 
 # Run the jobs in parallel using GNU Parallel
 if command -v parallel &> /dev/null; then
-    echo "GNU Parallel is already installed."
+    echo "Running benchmarks with GNU Parallel."
 else
     echo "Installing GNU Parallel..."
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
