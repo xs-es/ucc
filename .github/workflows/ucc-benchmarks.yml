@@ -1,46 +1,40 @@
-name: UCC Benchmark Pipeline
+name: Run Benchmarks
 
 on:
   push:
     branches:
-      - main # Trigger only when changes are pushed to the main branch
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   run-benchmarks:
-    runs-on: ubuntu-latest # Use GitHub-hosted runner
+    runs-on: self-hosted
 
     steps:
       # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Set up Python environment
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.12
+      # Build the Docker image
+      - name: Build Docker image
+        run: docker build -t ucc-benchmark .
 
-      # Install dependencies
-      - name: Install dependencies
-        run: |
-          python -m venv .venv
-          source .venv/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -e .
-
-      # Run the benchmarks
+      # Run the benchmarks in the Docker container
       - name: Run benchmarks
         run: |
-          source .venv/bin/activate
-          bash ./benchmarks/scripts/run_benchmarks.sh
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            ucc-benchmark bash -c "source /venv/bin/activate && ./benchmarks/scripts/run_benchmarks.sh"
 
-      # Commit and push benchmark results
-      - name: Push results to GitHub
-        run: |
-          git checkout main
-          git add benchmarks/
-          git commit -m "Update benchmark results"
-          git push origin main
+      # Push benchmark results to the repository
+      - name: Commit and push results
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add benchmarks
+          git commit -m "Update benchmark results"
+          git push origin main
