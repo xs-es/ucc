@@ -10,7 +10,7 @@ on:
 
 jobs:
   run-benchmarks:
-    runs-on: [self-hosted, ucc-benchmarks]
+    runs-on: ucc-benchmarks
 
     steps:
       # Checkout the repository
