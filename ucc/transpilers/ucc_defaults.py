@@ -2,11 +2,11 @@
 from qiskit.transpiler import PassManager
 from qiskit.circuit.equivalence_library import SessionEquivalenceLibrary as sel
 from qiskit.transpiler import CouplingMap
-from qiskit.transpiler.passes import BasisTranslator, ConsolidateBlocks, CollectCliffords, HighLevelSynthesis, HLSConfig
+from qiskit.transpiler.passes import BasisTranslator, ConsolidateBlocks, CollectCliffords, HighLevelSynthesis, HLSConfig, SabreLayout
 from qiskit.transpiler.passes.synthesis.unitary_synthesis import DefaultUnitarySynthesis
 
 
-from ..transpiler_passes import  CommutativeCancellation, Collect2qBlocks, UnitarySynthesis, Optimize1qGatesDecomposition, CXCancellation, SpectralMapping, SabreLayout
+from ..transpiler_passes import  CommutativeCancellation, Collect2qBlocks, UnitarySynthesis, Optimize1qGatesDecomposition, CXCancellation, SpectralMapping
 
 from qiskit.transpiler.passes import Optimize1qGatesSimpleCommutation
 
