@@ -116,7 +116,7 @@ class Optimize1qGatesDecomposition(TransformationPass):
         euler_one_qubit_decomposer.optimize_1q_gates_decomposition(
             dag,
             global_decomposers=self._global_decomposers,
-            basis_gates=self._basis_gates,
+            basis_gates=(None if self._basis_gates is None else set(self._basis_gates)),
         )
         return dag
         
