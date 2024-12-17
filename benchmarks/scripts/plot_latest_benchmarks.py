@@ -19,7 +19,7 @@ for file in csv_files:
     date_label = str(file).split('_')[1].split('.')[0]
     
     # Load the CSV file into a DataFrame
-    df = pd.read_csv(file)
+    df = pd.read_csv(file, header=1)
     
     # Add the extracted date as a new column in the dataframe
     df['date'] = date_label
