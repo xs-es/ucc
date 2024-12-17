@@ -155,45 +155,25 @@ def save_results(results_log, benchmark_name="gates", folder="../results", appen
         append: Whether to append to an existing file created on the same date (if True) or overwrite (if False). Default is False.
     """
     df = pd.DataFrame(results_log)
-    # This will store results run during the same date and hour in the same file
     current_date = datetime.now().strftime("%Y-%m-%d_%H")
-    
-    # Ensure the folder exists
     os.makedirs(folder, exist_ok=True)
-
-    # Create the filename based on the current date
     file_name = f"{benchmark_name}_{current_date}.csv"
     file_path = os.path.join(folder, file_name)
 
-    header = get_header(df)
+    version_header = get_header(df)
+    # Check if the file exists
+    file_exists = os.path.exists(file_path)
 
-    def prepend_header_if_missing(file_path, header):
-        """Check if the file has a header, and prepend it if not."""
-        if os.path.exists(file_path):
-            with open(file_path, "r+") as f:
-                content = f.read()
-                if not content.startswith("# Compiler versions:"):
-                    # Prepend the header and write back
-                    f.seek(0)
-                    f.write(f"{header}\n{content}")
-        else:
-            # Create a new file with the header
-            with open(file_path, "w") as f:
-                f.write(f"{header}\n")
+    # Open the file in the appropriate mode
+    with open(file_path, "a" if append else "w") as f:
+        # If the file is new or being overwritten, write the version header
+        if not file_exists or not append:
+            f.write(f"{version_header}\n")
 
-    # Ensure the header is present in the file
-    prepend_header_if_missing(file_path, header)
-
-    # Write results to the file
-    if append:
-        # Append results without adding column headers again
-        df.to_csv(file_path, mode="a", header=False, index=False)
-    else:
-        # Overwrite or create the file
-        df.to_csv(file_path, mode="w", header=True, index=False)
+        # Always write the DataFrame
+        df.to_csv(f, header=not file_exists or not append, index=False)
 
     print(f"Results saved to {file_path}")
-
 
 # Read the QASM files passed as command-line arguments
 def get_qasm_files():
