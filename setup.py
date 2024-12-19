@@ -7,6 +7,8 @@ with open("README.md", "r") as fh:
 with open("VERSION.txt", "r") as f:
     __version__ = f.read().strip()
 
+with open("ucc/_version.py", "w") as f:
+    f.write(f"__version__ = '{__version__}'\n")
 # Read the requirements from the requirements.txt file
 with open("requirements.txt", "r") as req_file:
     requirements = req_file.read().splitlines()

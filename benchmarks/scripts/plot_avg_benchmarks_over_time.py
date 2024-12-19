@@ -20,7 +20,7 @@ for file in csv_files:
     print(file)
     # Note, this will combine results from the same date
     date_label = str(file).split('_')[1].split('.')[0]
-    df = pd.read_csv(file)  # Load the CSV file into a DataFrame
+    df = pd.read_csv(file, header=1)  # Load the CSV file into a DataFrame
     df['date'] = date_label
     df['reduction_factor'] = df['raw_multiq_gates'] / df['compiled_multiq_gates'] 
     df['gate_reduction_per_s'] = df['reduction_factor'] / df['compile_time']
