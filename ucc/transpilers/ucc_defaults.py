@@ -84,7 +84,6 @@ class UCCDefault1:
                 swap_trials=_get_trial_count(20),
                 layout_trials=_get_trial_count(20),
             ))
-            self.pass_manager.append(SabreLayout(coupling_map=coupling_map))
             self.pass_manager.append(
                 SabreSwap(
                     coupling_map,
