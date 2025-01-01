@@ -7,6 +7,6 @@ mkdir -p "$RESULTS_FOLDER"
 QASM_FOLDER="$SCRIPT_DIR/../qasm_circuits/"
 full_qasm_file="$QASM_FOLDER/$QASM_FILE"
 
-command="python3 $SCRIPT_DIR/benchmark_script.py \"$full_qasm_file\" \"$COMPILER\" \"$RESULTS_FOLDER\""
+command="python3 \"$SCRIPT_DIR/benchmark_script.py\" \"$full_qasm_file\" \"$COMPILER\" \"$RESULTS_FOLDER\""
 
 eval $command
