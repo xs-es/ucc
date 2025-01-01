@@ -57,6 +57,13 @@ def test_cirq_compile():
     compile(circuit)
 ```
 
+## Contributing
+
+### Benchmarking
+You can benchmark the performance of ucc against other compilers using `scripts/run_benchmarks.sh`. This script runs compiler benchmarks in parallel, so you will need to first install `parallel` to support it. 
+On Mac you can do this with `brew install parallel`. 
+
+
 ## License
 UCC is distributed under [GNU Affero General Public License version 3.0](https://www.gnu.org/licenses/agpl-3.0.en.html)(AGPLv3). 
 Parts of ucc contain code or modified code that is part of Qiskit, which is distributed under Apache 2.0 license.
