@@ -20,7 +20,7 @@ from collections import defaultdict
 from qiskit.dagcircuit import DAGOpNode
 from qiskit.transpiler.basepasses import AnalysisPass
 
-from ..circuit_passes import CommutationChecker
+from .commutation_checker import CommutationChecker
 
 from qiskit.circuit._standard_gates_commutations import standard_gates_commutations
 
