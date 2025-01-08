@@ -15,6 +15,7 @@ To install ``ucc`` run ::
 
    API-doc <api.rst>
    User Guide <user_guide.rst>
+   Contributing Guide <contributing.rst>
    Developer Documentation <dev.rst>
 
 
