@@ -22,7 +22,7 @@ from qiskit.transpiler.passes.synthesis.unitary_synthesis import DefaultUnitaryS
 # from ucc.transpiler_passes.sabre_swap import SabreSwap
 
 
-from ..transpiler_passes import  CommutativeCancellation, Collect2qBlocks, UnitarySynthesis, Optimize1qGatesDecomposition, CXCancellation, SpectralMapping
+from ..transpiler_passes import  CommutativeCancellation, Collect2qBlocks, UnitarySynthesis, Optimize1qGatesDecomposition, SpectralMapping
 
 from qiskit.transpiler.passes import Optimize1qGatesSimpleCommutation, ElidePermutations
 

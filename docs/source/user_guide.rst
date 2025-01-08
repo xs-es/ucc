@@ -54,8 +54,8 @@ UCC includes the following modules:
    - ``UnitarySynthesis``
    - ``Optimize1qGatesDecomposition``
    - ``CollectCliffords``
-- ``circuit_passes`` containing functions for checking commutation relations
-- ``transpiler_passes`` consisting of submodules, each designed to perform a different optimization pass on the circuit.
+   - ``HighLevelSynthesis`` (greedy Clifford synthesis)
+- ``transpiler_passes`` consisting of submodules, each designed to perform a different optimization or analysis pass on the circuit.
 
 These include the passes listed in ``UCC_Default1``, along with others for specialized use.
 The full list of transpiler passes available in UCC can be found in the :doc:`api`.
@@ -75,16 +75,12 @@ UCC settings can be adjusted using the keyword arguments of the ``ucc.compile()`
    ucc.compile(
        circuit,
        return_format="original",
-       mode="ucc",
        target_device=None,
-       get_gate_counts=False,
    )
 
 
 - ``return_format`` is the format in which the input circuit will be returned, e.g. "TKET" or "OpenQASM2". Check ``ucc.supported_circuit_formats()`` for supported circuit formats. Default is the format of input circuit. 
-- ``mode`` specifies transpiler mode to use; currently ``ucc`` and ``qiskit`` are supported.
 - ``target_device`` can be specified as a Qiskit backend or coupling map, or a list of connections between qubits. If None, all-to-all connectivity is assumed. If a Qiskit backend or coupling map is specified, only the coupling list extracted from the backend is used.
-- ``get_gate_counts`` - if ``True``, gate counts of the compiled circuit are returned along with the compiled circuit. Default is ``False``.
 
 Writing a custom pass
 =====================
