@@ -1,4 +1,5 @@
-# <a href="https://github.com/unitaryfund/ucc">
+# `ucc`: Unitary Compiler Collection
+
 [![Repository](https://img.shields.io/badge/GitHub-5C5C5C.svg?logo=github)](https://github.com/unitaryfund/ucc)
 [![Unitary Fund](https://img.shields.io/badge/Supported%20By-Unitary%20Fund-FFFF00.svg)](https://unitary.fund)
 [![Discord Chat](https://img.shields.io/badge/dynamic/json?color=blue&label=Discord&query=approximate_presence_count&suffix=%20online.&url=https%3A%2F%2Fdiscord.com%2Fapi%2Finvites%2FJqVGmpkP96%3Fwith_counts%3Dtrue)](http://discord.unitary.fund)
@@ -10,8 +11,7 @@ UCC interfaces automatically with multiple quantum computing frameworks, includi
 
 
 **Want to know more?** 
-- Check out our
-documentation, which you can build locally after installation by running `make html` in [ucc/docs/source](https://github.com/unitaryfund/ucc/tree/nts-releases/docs/source).
+- Check out our documentation, which you can build locally after installation by running `make html` in `ucc/docs/source`.
 - For code, repo, or theory questions, especially those requiring more detailed responses, submit a [Discussion](https://github.com/unitaryfund/ucc/discussions).
 - For casual or time sensitive questions, chat with us on [Discord](http://discord.unitary.fund).
 
@@ -56,20 +56,29 @@ def test_cirq_compile():
         CNOT(qubits[0], qubits[1]))
     compile(circuit)
 ```
+
 ## How does UCC stack up?
+
 We run benchmarks regularly to compare against the most recent versions of the most popular quantum compiler frameworks for a range of circuits. Here's the latest:
 ![alt text](benchmarks/latest_compiler_benchmarks_by_circuit.png)
 And here you can see progress over time (changes usually indicate a newer version came out):
 ![alt text](benchmarks/avg_compiler_benchmarks_over_time.png)
-Note that the compile times before 2024-12-10 may have been run on different classical compute instances, so their exact runtime is not as important to compare as their relative performance with respect to other compilers. After 2024-12-10, all data present in this plot should be run on the same compute instance using our [ucc-benchmarks](https://github.com/unitaryfund/ucc/blob/main/.github/workflows/ucc-benchmarks.yml) GitHub Actions workflow. 
+Note that the compile times before 2024-12-10 may have been run on different classical compute instances, so their exact runtime is not as important to compare as their relative performance with respect to other compilers.
+After 2024-12-10, all data present in this plot should be run on the same compute instance using our [ucc-benchmarks](https://github.com/unitaryfund/ucc/blob/main/.github/workflows/ucc-benchmarks.yml) GitHub Actions workflow. 
 
 ## Contributing
 
 ### Benchmarking
+
 You can benchmark the performance of ucc against other compilers using `scripts/run_benchmarks.sh`. This script runs compiler benchmarks in parallel, so you will need to first install `parallel` to support it. 
 On Mac you can do this with `brew install parallel`. 
 
+### Transpiler passes
+
+Got an idea for a new transpiler pass?
+Documentation for how to accomplish this can be found in the [contributing guide](./docs/source/contributing.rst).
 
 ## License
+
 UCC is distributed under [GNU Affero General Public License version 3.0](https://www.gnu.org/licenses/agpl-3.0.en.html)(AGPLv3). 
 Parts of ucc contain code or modified code that is part of Qiskit, which is distributed under Apache 2.0 license.
