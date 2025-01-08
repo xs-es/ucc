@@ -54,8 +54,8 @@ UCC includes the following modules:
    - ``UnitarySynthesis``
    - ``Optimize1qGatesDecomposition``
    - ``CollectCliffords``
-- ``circuit_passes`` containing functions for checking commutation relations
-- ``transpiler_passes`` consisting of submodules, each designed to perform a different optimization pass on the circuit.
+   - ``HighLevelSynthesis`` (greedy Clifford synthesis)
+- ``transpiler_passes`` consisting of submodules, each designed to perform a different optimization or analysis pass on the circuit.
 
 These include the passes listed in ``UCC_Default1``, along with others for specialized use.
 The full list of transpiler passes available in UCC can be found in the :doc:`api`.
