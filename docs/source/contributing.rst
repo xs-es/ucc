@@ -2,11 +2,47 @@ Contributing Guide
 ==================
 
 Thank you for your interest in contributing to UCC!
-This guide will help you propose, implement, and validate new techniques for our transpiler.
-Follow these steps to ensure a smooth contribution process.
+All contributions to this project are welcome, and they are greatly appreciated; every little bit helps.
+The most common ways to contribute here are
+
+1. opening an `issue <https://github.com/unitaryfund/ucc/issues/new/choose>`_ to report a bug or propose a new feature, or ask a question, and
+2. opening a `pull request <https://github.com/unitaryfund/ucc/pulls>`_ to fix a bug, or implement a desired feature.
+
+The rest of this document describes the technical details of getting set up to develop, and make your first contribution to ucc.
+
+Setting up your development environment
+---------------------------------------
+
+We recommend creating a virtual environment to install the required dependencies.
+Once this is set up using the tool of your choice, install the dependencies and ``ucc`` in editable mode by running the following command in the root directory of the repository.
+
+.. code:: bash
+
+    pip install -e .
+
+With this set up you can now run tests using
+
+.. code:: bash
+
+    pytest ucc
+
+and build the documentation by changing to the ``docs/source`` directory where you can run
+
+.. code:: bash
+
+    make html
+
+The built documentation will then live in ``ucc/docs/source/_build/html``.
+
+.. tip::
+
+    Remember to run the tests and build the documentation before opening a pull request to ensure a smoother pull request review.
+
+Proposing a new transpiler pass
+-------------------------------
 
 1. Proposing a New Transpiler Pass
-----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 When proposing a new transpiler pass, please include a detailed report containing:
 
@@ -20,7 +56,7 @@ When proposing a new transpiler pass, please include a detailed report containin
     #. Define test circuits of the above types which you will use to validate the technique.
 
 2. Implementing and Validating a Prototype of the Pass
-------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. Create a prototype
     * A Jupyter notebook or a small script is sufficient for the prototype.
@@ -31,13 +67,14 @@ When proposing a new transpiler pass, please include a detailed report containin
 .. _1. Proposing a New Transpiler Pass: #proposing-a-new-transpiler-pass
 
 3. Implementing the New Pass in the Codebase
---------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Once the prototype is validated, implement the new pass in the codebase.
-You can take inspiration from Qiskit's guide on creating custom transpiler passes: `Qiskit Custom Transpiler Pass <https://docs.quantum.ibm.com/guides/custom-transpiler-pass>`_.
+Documentation to guide you through this process is available in the `User Guide <user_guide>`_.
+For more detailed information and examples, refer to the `Qiskit documentation <https://docs.quantum.ibm.com/guides/custom-transpiler-pass>`_.
 
 4. Clear Acceptance Criteria for Incorporation into default transpiler
-----------------------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For the new pass to be incorporated into `the default compiler <https://github.com/unitaryfund/ucc/blob/main/ucc/transpilers/ucc_defaults.py>`_, it must meet the following criteria:
 
@@ -50,7 +87,9 @@ For the new pass to be incorporated into `the default compiler <https://github.c
 #. Compatibility with other passes
     * Ensure the new pass performs as expected when used with other existing passes.
 
-#. Increase in "gate reduction factor per second"
-    * This is a key metric defined in the `UCC benchmarks notebook <https://github.com/unitaryfund/ucc/blob/main/benchmarks/ucc_benchmarks.ipynb>`_. The new pass should show an increase in this metric.
-
 We appreciate your contributions and look forward to your new pass proposals!
+
+Code of Conduct
+---------------
+
+UCC development abides by the :doc:`CODE_OF_CONDUCT`.

@@ -17,6 +17,7 @@ To install ``ucc`` run ::
    User Guide <user_guide.rst>
    Contributing Guide <contributing.rst>
    Developer Documentation <dev.rst>
+   Code of Conduct <CODE_OF_CONDUCT.rst>
 
 
 

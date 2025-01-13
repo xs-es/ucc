@@ -9,7 +9,11 @@ Installation
 
 To install ``ucc`` run:
 
-:code:`pip install ucc`
+.. code:: bash
+
+   git clone https://github.com/unitaryfund/ucc.git
+   cd ucc
+   pip install -e . # Editable mode
 
 
 UCC requires Python version :math:`\ge` 3.12. 
@@ -147,6 +151,7 @@ Alternatively, we can add a custom pass in the sequence, as shown in the followi
 A note on terminology
 *********************
 
-\* There is some disagreement in the quantum computing community on the proper usage of the terms "transpilation" and "compilation."
-For instance, Qiskit refers to optimization of the Directed Acyclic Graph (DAG) of a circuit as "transpilation," whereas in qBraid, the 1:1 translation of one circuit representation into another without optimization (e.g. a Cirq circuit to a Qiskit circuit; OpenQASM 2 into PyTKET) is called "transpilation." 
-In addition, Cirq uses the term "transformer" and PyTKET uses :code:`CompilationUnit` to refer to what Qiskit calls a transpiler pass.
+.. important::
+   There is some disagreement in the quantum computing community on the proper usage of the terms "transpilation" and "compilation."
+   For instance, Qiskit refers to optimization of the Directed Acyclic Graph (DAG) of a circuit as "transpilation," whereas in qBraid, the 1:1 translation of one circuit representation into another without optimization (e.g. a Cirq circuit to a Qiskit circuit; OpenQASM 2 into PyTKET) is called "transpilation." 
+   In addition, Cirq uses the term "transformer" and PyTKET uses :code:`CompilationUnit` to refer to what Qiskit calls a transpiler pass.
