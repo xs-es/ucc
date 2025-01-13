@@ -66,17 +66,22 @@ And here you can see progress over time (changes usually indicate a newer versio
 Note that the compile times before 2024-12-10 may have been run on different classical compute instances, so their exact runtime is not as important to compare as their relative performance with respect to other compilers.
 After 2024-12-10, all data present in this plot should be run on the same compute instance using our [ucc-benchmarks](https://github.com/unitaryfund/ucc/blob/main/.github/workflows/ucc-benchmarks.yml) GitHub Actions workflow. 
 
-## Contributing
-
-### Benchmarking
+## Benchmarking
 
 You can benchmark the performance of ucc against other compilers using `scripts/run_benchmarks.sh`. This script runs compiler benchmarks in parallel, so you will need to first install `parallel` to support it. 
 On Mac you can do this with `brew install parallel`. 
 
-### Transpiler passes
+## Contributing
 
-Got an idea for a new transpiler pass?
-Documentation for how to accomplish this can be found in the [contributing guide](./docs/source/contributing.rst).
+We’re building UCC as a community-driven project.
+Your contributions help improve the tool for everyone!
+There are many ways you can contribute, such as
+
+- **Create a Custom Compiler Pass**: Learn how in the [User Guide](./docs/source/user_guide.rst) (RTD link to https://github.com/unitaryfund/ucc/blob/main/docs/source/user_guide.rst#writing-a-custom-pass) TODO
+- **Submit a bug report or feature request**: Submit a bug report or feature request [on GitHub](https://github.com/unitaryfund/ucc/issues/new/choose).
+- **Contribute Code**: Follow the [Contribution Guide](./docs/source/contributing.rst) to submit new passes and improvements.
+
+If you have questions about contributing please ask on the [Unitary Foundation Discord](http://discord.unitary.foundation).
 
 ## License
 
