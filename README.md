@@ -77,7 +77,7 @@ We’re building UCC as a community-driven project.
 Your contributions help improve the tool for everyone!
 There are many ways you can contribute, such as
 
-- **Create a Custom Compiler Pass**: Learn how in the [User Guide](./docs/source/user_guide.rst) (RTD link to https://github.com/unitaryfund/ucc/blob/main/docs/source/user_guide.rst#writing-a-custom-pass) TODO
+- **Create a Custom Compiler Pass**: Learn how in the [User Guide](./docs/source/user_guide.rst)
 - **Submit a bug report or feature request**: Submit a bug report or feature request [on GitHub](https://github.com/unitaryfund/ucc/issues/new/choose).
 - **Contribute Code**: Follow the [Contribution Guide](./docs/source/contributing.rst) to submit new passes and improvements.
 
