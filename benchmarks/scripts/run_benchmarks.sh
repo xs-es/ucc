@@ -48,7 +48,7 @@ trap 'echo "All jobs killed"; exit' SIGINT SIGTERM
 
 QASM_EXPVAL_FILES=(
     "benchpress/qaoa_barabasi_albert_N10_3reps_basis_rz_rx_ry_cx.qasm"
-    "benchpress/qv_N100_12345_basis_rz_rx_ry_cx.qasm"
+    "benchpress/qv_N010_12345_basis_rz_rx_ry_cx.qasm"
     "benchpress/qft_N010_basis_rz_rx_ry_cx.qasm"
     "benchpress/square_heisenberg_N9_basis_rz_rx_ry_cx.qasm"
     "ucc/prep_select_N10_ghz_basis_rz_rx_ry_h_cx.qasm"
