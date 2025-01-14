@@ -6,7 +6,9 @@ Getting started
 
 To install ``ucc`` run ::
 
-    pip install ucc
+    git clone https://github.com/unitaryfund/ucc.git
+    cd ucc
+    pip install -e . # Editable mode
 
 
 .. toctree::
@@ -15,7 +17,9 @@ To install ``ucc`` run ::
 
    API-doc <api.rst>
    User Guide <user_guide.rst>
+   Contributing Guide <contributing.rst>
    Developer Documentation <dev.rst>
+   Code of Conduct <CODE_OF_CONDUCT.rst>
 
 
 
