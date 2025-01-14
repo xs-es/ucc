@@ -1,8 +1,6 @@
 import sys
-import os.path
-from typing import Any, List, Set
+from typing import List, Set
 import math
-import numpy as np
 
 import cirq
 import pytket
@@ -13,33 +11,21 @@ from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
 import numpy as np
 
-from common import (
-    cirq_compile,
-    pytket_compile,
-    qiskit_compile,
-    save_results,
-    get_native_rep,
-)
+from common import cirq_compile, pytket_compile, qiskit_compile, save_results, get_native_rep
 from ucc import compile as ucc_compile
 
-if len(sys.argv) < 5:
-    print(
-        "Usage: python expval_benchmark.py <qasm_filepath> <compiler> <results_folder> <log details>"
-    )
+if len(sys.argv) < 4:
+    print("Usage: python expval_benchmark.py <qasm_filepath> <compiler> <results_folder>")
     sys.exit(1)
 
 qasm_path: str = sys.argv[1]
 compiler_alias: str = sys.argv[2]
-results_folder: str = sys.argv[3]
-log: bool = True if sys.argv[4].lower() == "true" else False
+results_folder: str = sys.argv[3]  # New argument for results folder
 
 with open(qasm_path) as f:
     qasm_string = f.read()
 
-
-def compile_for_simulation(
-    circuit: Any, compiler_alias: str
-) -> qiskit.QuantumCircuit:
+def compile_for_simulation(circuit, compiler_alias: str) -> qiskit.QuantumCircuit:
     """Compiles the circuit and converts it to qiskit so it can be run on the AerSimulator.
 
     Args:
@@ -118,28 +104,6 @@ def estimate_heavy_output(circuit: qiskit.QuantumCircuit, one_q_err: float = 0.0
     ) / nshots
     return hop
 
-def qiskit_gateset(circuit: qiskit.QuantumCircuit) -> set[str]:
-    everything = set(circuit.count_ops().keys())
-    return everything - {"save_density_matrix"}
-
-
-uncompiled_qiskit_circuit = get_native_rep(qasm_string, "qiskit")
-native_circuit = get_native_rep(qasm_string, compiler_alias)
-compiled_circuit = compile_for_simulation(native_circuit, compiler_alias)
-circuit_name = os.path.split(qasm_path)[-1]
-
-if log:
-    print(f"Compiling {circuit_name} with {compiler_alias}")
-    print(
-        f"    Gate reduction: {len(uncompiled_qiskit_circuit)} -> {len(compiled_circuit) - 1}"
-    )  # minus 1 to account for the addition of `save_density_matrix`
-    print(
-        f"    Starting gate set: {qiskit_gateset(uncompiled_qiskit_circuit)}"
-    )
-    print(f"    Final gate set:    {qiskit_gateset(compiled_circuit)}")
-    print(f"    Starting gates: {uncompiled_qiskit_circuit.count_ops()}")
-    print(f"    Final gates:    {compiled_circuit.count_ops()}")
-
 
 def eval_exp_vals(compiled_circuit, uncompiled_qiskit_circuit, circuit_name):
     """Calculates the expectation values of observables based on input benchmark circuit."""
@@ -158,21 +122,23 @@ def eval_exp_vals(compiled_circuit, uncompiled_qiskit_circuit, circuit_name):
         
         return compiled_ev, ideal_ev, obs_str
 
+circuit_name = qasm_path.split('/')[-1]
 
-compiled_ev, ideal_ev, obs_str = eval_exp_vals(compiled_circuit, uncompiled_qiskit_circuit, circuit_name)
+native_circuit = get_native_rep(qasm_string, compiler_alias)
 
-results = [
-    {
-        "compiler": compiler_alias,
-        "circuit_name": circuit_name.split("_N")[0],
-        "observable": obs_str,
-        "expval": compiled_ev,
-        "absoluate_error": abs(ideal_ev - compiled_ev),
-        "relative_error": abs(ideal_ev - compiled_ev) / abs(ideal_ev),
-        "ideal_expval": ideal_ev,
+ideal_circuit = get_native_rep(qasm_string, "qiskit")
+compiled_circuit = compile_for_simulation(native_circuit, compiler_alias)
+compiled_ev, ideal_ev, obs_str = eval_exp_vals(compiled_circuit, native_circuit, circuit_name)
+
+results = [{
+    "compiler": compiler_alias,
+    "circuit_name": qasm_path.split('/')[-1].split('_N')[0],
+    "observable": obs_str,
+    "expval": compiled_ev,
+    "absoluate_error": abs(ideal_ev - compiled_ev),
+    "relative_error": abs(ideal_ev - compiled_ev) / abs(ideal_ev),
+    "ideal_expval": ideal_ev,
     }
 ]
 
-save_results(
-    results, benchmark_name="expval", folder=results_folder, append=True
-)
+save_results(results, benchmark_name="expval", folder=results_folder, append=True)
