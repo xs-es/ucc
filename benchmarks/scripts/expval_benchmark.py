@@ -80,7 +80,7 @@ native_circuit = get_native_rep(qasm_string, compiler_alias)
 compiled_circuit = compile_for_simulation(native_circuit, compiler_alias)
 density_matrix = simulate_density_matrix(compiled_circuit)
 
-obs_str = "ZZZZZZZZZZ"
+obs_str = "Z" * compiled_circuit.num_qubits
 observable = Operator.from_label(obs_str)
 
 compiled_ev = np.real(density_matrix.expectation_value(observable))
