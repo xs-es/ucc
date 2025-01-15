@@ -75,7 +75,7 @@ In addition to raw compilation stats, we simulate the compiled circuits with a n
 
 ![Violin plot showing absolute error of each compiler across a variety of circuits](benchmarks/latest_expval_benchmark_by_compiler.png)
 
-And here you can see progress over time, with new package versions labeled for each compiler:
+And here you can see progress over time (changes usually indicate a newer version came out):
 ![alt text](benchmarks/avg_compiler_benchmarks_over_time.png)
 Note that the compile times before 2024-12-10 may have been run on different classical compute instances, so their runtime is not reported here, but you can find this data in benchmarks/results.
 After 2024-12-10, all data present in this plot is on the same compute instance using our [ucc-benchmarks](https://github.com/unitaryfund/ucc/blob/main/.github/workflows/ucc-benchmarks.yml) GitHub Actions workflow.
