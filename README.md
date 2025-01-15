@@ -59,6 +59,11 @@ def test_cirq_compile():
 ## How does UCC stack up?
 We run benchmarks regularly to compare against the most recent versions of the most popular quantum compiler frameworks for a range of circuits. Here's the latest:
 ![alt text](benchmarks/latest_compiler_benchmarks_by_circuit.png)
+
+In addition to raw compilation stats, we simulate the compiled circuits with a noisy density matrix simulation to see how each compiler impacts performance:
+
+![Violin plot showing absolute error of each compiler across a variety of circuits](benchmarks/latest_expval_benchmark_by_compiler.png)
+
 And here you can see progress over time (changes usually indicate a newer version came out):
 ![alt text](benchmarks/avg_compiler_benchmarks_over_time.png)
 Note that the compile times before 2024-12-10 may have been run on different classical compute instances, so their exact runtime is not as important to compare as their relative performance with respect to other compilers. After 2024-12-10, all data present in this plot should be run on the same compute instance using our [ucc-benchmarks](https://github.com/unitaryfund/ucc/blob/main/.github/workflows/ucc-benchmarks.yml) GitHub Actions workflow. 
