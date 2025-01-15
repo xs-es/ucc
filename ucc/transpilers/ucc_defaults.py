@@ -69,35 +69,37 @@ class UCCDefault1:
             # self.pass_manager.append(BasisTranslator(sel, target_basis=self.target_basis)) 
             
     def add_map_passes(self, coupling_list = None):
-            if coupling_list is not None:              
-                coupling_map = CouplingMap(couplinglist=coupling_list)
-                # self.pass_manager.append(ElidePermutations())
-                # self.pass_manager.append(SpectralMapping(coupling_list))
-                # self.pass_manager.append(SetLayout(pass_manager_config.initial_layout))
-                self.pass_manager.append(SabreLayout(
+        if coupling_list is not None:              
+            coupling_map = CouplingMap(couplinglist=coupling_list)
+            # self.pass_manager.append(ElidePermutations())
+            # self.pass_manager.append(SpectralMapping(coupling_list))
+            # self.pass_manager.append(SetLayout(pass_manager_config.initial_layout))
+            self.pass_manager.append(
+                SabreLayout(
                     coupling_map,
                     seed=1,
                     max_iterations=4,
                     swap_trials=_get_trial_count(20),
                     layout_trials=_get_trial_count(20),
-                ))
-
-                self.pass_manager.append(VF2Layout(coupling_map=coupling_map))
-                self.pass_manager.append(ApplyLayout())
-                self.pass_manager.append(
-                    SabreSwap(
-                        coupling_map,
-                        heuristic="decay",
-                        seed=1,
-                        trials=_get_trial_count(20),
-                    )
                 )
-                # self.pass_manager.append(MapomaticLayout(coupling_map))
-                self.pass_manager.append(VF2PostLayout(coupling_map=coupling_map))
-                self.pass_manager.append(ApplyLayout())
-                self.add_local_passes(1)
-                self.pass_manager.append(VF2PostLayout(coupling_map=coupling_map))
-                self.pass_manager.append(ApplyLayout())
+            )
+
+            self.pass_manager.append(VF2Layout(coupling_map=coupling_map))
+            self.pass_manager.append(ApplyLayout())
+            self.pass_manager.append(
+                SabreSwap(
+                    coupling_map,
+                    heuristic="decay",
+                    seed=1,
+                    trials=_get_trial_count(20),
+                )
+            )
+            # self.pass_manager.append(MapomaticLayout(coupling_map))
+            self.pass_manager.append(VF2PostLayout(coupling_map=coupling_map))
+            self.pass_manager.append(ApplyLayout())
+            self.add_local_passes(1)
+            self.pass_manager.append(VF2PostLayout(coupling_map=coupling_map))
+            self.pass_manager.append(ApplyLayout())
 
 
     def run(self, circuits, coupling_list=None):
