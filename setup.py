@@ -17,7 +17,7 @@ setup(
     name="ucc",
     version=__version__,
     author="Jordan Sullivan, Misty Wahl, Nate Stemen",
-    author_email="jordan@unitary.fund",
+    author_email="jordan@unitary.foundation",
     description="Unitary Compiler Collection: A quantum circuit interface and compiler for multiple quantum frameworks",
     long_description=long_description,
     long_description_content_type="text/markdown",
