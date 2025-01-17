@@ -46,7 +46,7 @@ x_positions = range(len(circuit_names))  # X positions for each circuit
 circuit_name_to_index = {name: i for i, name in enumerate(circuit_names)}
 
 # Step 7: Set up the figure and axes
-fig, ax = plt.subplots(1, 2, figsize=(14, 7))
+fig, ax = plt.subplots(figsize=(10, 6))
 
 # Set color map for different compilers
 # Get unique compilers and sort them alphabetically
@@ -56,22 +56,13 @@ unique_compilers = sorted(df_latest['compiler'].unique())
 colormap = plt.get_cmap("tab10", len(unique_compilers))
 color_map = {compiler: colormap(i) for i, compiler in enumerate(unique_compilers)}
 
-# Step 8: Plot relative error and absolute error for each compiler
+# Step 8: Plot absolute error for each compiler
 for i, (key, grp) in enumerate(df_latest.groupby("compiler")):
     # Get indices for each circuit in the current compiler group
     grp_indices = grp['circuit_name'].map(circuit_name_to_index)
 
-    # Plot relative error
-    ax[0].bar(
-        [grp_indices + i * bar_width for grp_indices in grp_indices],  # Shift bars for each compiler
-        grp['relative_error'],  # Relative error data
-        width=bar_width,
-        label=key,
-        color=color_map[key]
-    )
-
     # Plot absolute error
-    ax[1].bar(
+    ax.bar(
         [grp_indices + i * bar_width for grp_indices in grp_indices],  # Shift bars for each compiler
         grp['absoluate_error'],  # Absolute error data
         width=bar_width,
@@ -80,26 +71,18 @@ for i, (key, grp) in enumerate(df_latest.groupby("compiler")):
     )
 
 # Step 9: Customize plots
-ax[0].set_title(f"Relative Error by Compiler on Circuits (Date: {latest_date})")
-ax[0].set_xlabel("Circuit Name")
-ax[0].set_ylabel("Relative Error")
-ax[0].set_xticks(x_positions)
-ax[0].set_xticklabels(circuit_names, rotation=75)
-ax[0].set_yscale("log")
-
-ax[1].set_title(f"Absolute Error by Compiler on Circuits (Date: {latest_date})")
-ax[1].set_xlabel("Circuit Name")
-ax[1].set_ylabel("Absolute Error")
-ax[1].set_xticks(x_positions)
-ax[1].set_xticklabels(circuit_names, rotation=75)
-ax[1].set_yscale("log")
+ax.set_title(f"Absolute Error by Compiler on Circuits (Date: {latest_date})")
+ax.set_xlabel("Circuit Name")
+ax.set_ylabel("Absolute Error")
+ax.set_xticks(x_positions)
+ax.set_xticklabels(circuit_names, rotation=75)
+ax.set_yscale("log")
 
 # Step 10: Add legend
-ax[0].legend(title="Compiler")
-ax[1].legend(title="Compiler")
+ax.legend(title="Compiler")
 
 # Adjust layout and save the figure
 plt.tight_layout()
-filename = os.path.join(directory_of_this_file, "../latest_relative_absolute_errors_by_circuit.png")
+filename = os.path.join(directory_of_this_file, "../latest_absolute_errors_by_circuit.png")
 print(f"\n Saving plot to {filename}")
 fig.savefig(filename)
