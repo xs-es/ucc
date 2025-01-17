@@ -33,9 +33,9 @@ df_all = pd.concat(dfs, ignore_index=True)
 # Convert the 'date' column to datetime
 df_all['date'] = pd.to_datetime(df_all['date'])
 
-# Step 6: Group by date and compiler, and calculate the average relative error
+# Step 6: Group by date and compiler, and calculate the average absolute error
 summary = df_all.groupby(['date', 'compiler']).agg(
-    avg_relative_error=('relative_error', 'mean')
+    avg_absolute_error=('absoluate_error', 'mean')
 ).reset_index()
 
 # Step 7: Set up the figure
@@ -46,28 +46,27 @@ unique_compilers = sorted(summary['compiler'].unique())
 colormap = plt.get_cmap("tab10", len(unique_compilers))
 color_map = {compiler: colormap(i) for i, compiler in enumerate(unique_compilers)}
 
-# Step 8: Plot average relative error over time
+# Step 8: Plot average absolute error over time
 for compiler in unique_compilers:
     compiler_data = summary[summary['compiler'] == compiler]
     
-    # Plot average relative error
     ax.plot(
         compiler_data['date'], 
-        compiler_data['avg_relative_error'], 
+        compiler_data['avg_absolute_error'], 
         label=compiler, 
         color=color_map[compiler], 
         marker='o'
     )
 
 # Step 9: Customize plot
-ax.set_title("Average Relative Error Over Time")
+ax.set_title("Average Absolute Error Over Time")
 ax.set_xlabel("Date")
-ax.set_ylabel("Average Relative Error")
+ax.set_ylabel("Average Absolute Error")
 ax.grid(True)
 ax.legend(title="Compiler")
 
 # Adjust layout and save the figure
 plt.tight_layout()
-filename = os.path.join(directory_of_this_file, "../average_relative_error_over_time.png")
+filename = os.path.join(directory_of_this_file, "../average_absolute_error_over_time.png")
 print(f"\n Saving plot to {filename}")
 fig.savefig(filename)
