@@ -1,22 +1,20 @@
-Welcome to ucc's documentation!
+Welcome to the docs!
 ===============================
 
-Getting started
----------------
+.. include:: ../../README.md
+   :parser: myst_parser.sphinx_
+   :end-before: <!-- start-how-does-ucc-stack-up -->
 
-To install ``ucc`` run ::
-
-    git clone https://github.com/unitaryfund/ucc.git
-    cd ucc
-    pip install -e . # Editable mode
-
+.. include:: ../../README.md
+   :parser: myst_parser.sphinx_
+   :start-after: <!-- end-how-does-ucc-stack-up -->
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
-   API-doc <api.rst>
    User Guide <user_guide.rst>
+   API-doc <api.rst>
    Contributing Guide <contributing.rst>
    Developer Documentation <dev.rst>
    Code of Conduct <CODE_OF_CONDUCT.rst>
