@@ -2,7 +2,7 @@
 
 [![Repository](https://img.shields.io/badge/GitHub-5C5C5C.svg?logo=github)](https://github.com/unitaryfund/ucc)
 [![Unitary Foundation](https://img.shields.io/badge/Supported%20By-Unitary%20Foundation-FFFF00.svg)](https://unitary.foundation)
-[![Documentation Status](https://readthedocs.org/projects/ucc/badge/?version=stable)](https://ucc.readthedocs.io/en/latest/)
+[![Documentation Status](https://readthedocs.org/projects/ucc/badge/?version=latest)](https://ucc.readthedocs.io/en/latest/?badge=latest)
 [![Discord Chat](https://img.shields.io/badge/dynamic/json?color=blue&label=Discord&query=approximate_presence_count&suffix=%20online.&url=https%3A%2F%2Fdiscord.com%2Fapi%2Finvites%2FJqVGmpkP96%3Fwith_counts%3Dtrue)](http://discord.unitary.foundation)
 
 
@@ -19,6 +19,8 @@ UCC interfaces automatically with multiple quantum computing frameworks, includi
 ## Quickstart
 
 ### Installation
+
+**Note**: UCC requires Python version >= 3.12.
 
 ```bash
 pip install ucc
