@@ -13,7 +13,7 @@ on:
 
 jobs:
   run-benchmarks:
-    runs-on: ucc-benchmarks-8-core
+    runs-on: ucc-benchmarks-8-core-U22.04
 
     steps:
       # Checkout the repository

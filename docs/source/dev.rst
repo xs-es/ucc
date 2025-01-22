@@ -1,15 +1,18 @@
 Developer Documentation
 #######################
 
-This document provides information for developers who want to contribute to the development of `ucc`, as well as for maintainers.
+This document provides information for developers who want to contribute to the development of ``ucc``, as well as for maintainers.
 
 Cutting a release
 =================
 
-To release a new version of `ucc` on GitHub, follow the steps below.
+.. important::
+    This section is intended for maintainers of the :code:`ucc` repository.
 
-1. **Update `VERSION.txt`:**
-    - Increment the version number according to `semantic versioning <https://semver.org/>`_.
+To release a new version of ``ucc`` on GitHub, follow the steps below.
+
+1. **Bump the Version:**
+    - Increment the version in ``VERSION.txt`` according to `semantic versioning <https://semver.org/>`_.
 
 2. **Update the Changelog:**
     - Update the ``CHANGELOG.rst`` file with all new changes, improvements, and bug fixes since the previous release.
@@ -32,5 +35,5 @@ To release a new version of `ucc` on GitHub, follow the steps below.
     - Fill in the release title and description, and copy the changelog entry for the description.
     - Publish the release.
 
-.. note::
+.. tip::
     Ensure that all changes pass the tests, and the documentation builds correctly before creating a release.
