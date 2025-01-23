@@ -14,14 +14,14 @@ on:
 jobs:
   run-benchmarks:
     runs-on: ucc-benchmarks-8-core-U22.04
-
+    if: contains(github.event.head_commit.message, '[benchmark chore]') == false
+    
     steps:
-      # Checkout the repository
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Ensure the full history is fetched
-
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+          
       # Build the Docker image
       - name: Build Docker image
         run: docker build -t ucc-benchmark .
@@ -48,8 +48,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git switch ${{ github.head_ref || github.ref_name }}
-          git add benchmarks/*
+          git add -f benchmarks/*
           git status
-          git commit -m "Update benchmark results" || echo "No changes to commit"
+          git commit -m "Update benchmark results [benchmark chore]" || echo "No changes to commit"
           git push origin HEAD:${{ github.head_ref || github.ref_name }} --force
 
