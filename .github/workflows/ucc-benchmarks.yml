@@ -21,7 +21,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Ensure the full history is fetched
-          ref: ${{ github.event.inputs.branch || 'main' }} # Checkout the branch specified by input or default to main
 
       # Build the Docker image
       - name: Build Docker image
@@ -34,11 +33,10 @@ jobs:
             -v "/home/runner/work/ucc/ucc:/ucc" \
             ucc-benchmark bash -c "
               source /venv/bin/activate && \
-              ./benchmarks/scripts/small_test.sh && \
-              python ./benchmarks/scripts/plot_avg_benchmarks_over_time.py && \
-              python ./benchmarks/scripts/plot_latest_benchmarks.py
+              ./benchmarks/scripts/small_test.sh && 
             "
-            # Configure Git for commit
+            
+      # Configure Git for commit
       - name: Configure Git for commit
         run: |
           git config --global user.email "actions@github.com"
