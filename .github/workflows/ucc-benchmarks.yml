@@ -16,17 +16,20 @@ jobs:
     runs-on: ucc-benchmarks-8-core-U22.04
 
     steps:
-      # Checkout the repository and branch
-      - name: Checkout branch
+      # Checkout the latest main branch
+      - name: Checkout main branch
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Ensure the full history is fetched
+          fetch-depth: 0  # Ensure the full history is fetched
 
-      # Build the Docker image
-      - name: Build Docker image
-        run: docker build -t ucc-benchmark .
+      # Create a temporary branch from main to commit benchmark results
+      - name: Create temporary branch
+        run: |
+          git checkout main
+          git pull origin main  # Ensure it's the latest main
+          git checkout -b auto-benchmark-$(date +%Y%m%d%H%M%S)
 
-     # Run benchmarks in Docker container and commit the results
+      # Run the benchmarks in the Docker container
       - name: Run benchmarks
         run: |
           docker run --rm \
@@ -35,36 +38,32 @@ jobs:
               source /venv/bin/activate && \
               ./benchmarks/scripts/small_test.sh
             "
-      
+
       # Configure Git for commit
       - name: Configure Git for commit
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
-      
-      # Commit and push results to a new temporary branch
+
+      # Commit and push results to the temporary branch
       - name: Commit and push results to a new branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Create a temporary branch based on the current state
-          git checkout -b auto-benchmarks
-          
           # Stage and commit changes
           git add benchmarks/*
           git commit -m "Update benchmark results" || echo "No changes to commit"
           
           # Push the new branch to the remote repository
           git push origin HEAD
-      
+
       # Create a pull request to merge the new branch into main
       - name: Create Pull Request
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: create_pr
         run: |
-          # Get the current branch name
-          HEAD_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          HEAD_BRANCH=$(git rev-parse --abbrev-ref HEAD)  # Get the current branch name
           
           # Create the PR
           RESPONSE=$(curl -X POST \
@@ -79,7 +78,7 @@ jobs:
           echo "$RESPONSE" > pr_response.json
           PR_NUMBER=$(jq -r '.number' <<< "$RESPONSE")
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
-      
+
       # Auto-approve and merge the pull request (if necessary)
       - name: Auto-Approve and Merge Pull Request
         if: env.PR_NUMBER != ''
