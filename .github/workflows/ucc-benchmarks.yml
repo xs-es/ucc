@@ -3,13 +3,13 @@ name: Run Benchmarks
 on:
   push:
     branches:
-      - main
+      - PR-auto-merge-GH-Action
   workflow_dispatch:
     inputs:
       branch:
         description: 'Branch to run benchmarks on'
         required: false
-        default: 'main'
+        default: 'PR-auto-merge-GH-Action'
 
 jobs:
   run-benchmarks:
