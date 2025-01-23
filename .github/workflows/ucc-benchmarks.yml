@@ -42,7 +42,12 @@ jobs:
             source /venv/bin/activate && \
             ./benchmarks/scripts/small_test.sh
           "
-    
+    # Commit and push benchmark results
+    - name: Configure Git for commit
+      run: |
+        git config --global user.email "actions@github.com"
+        git config --global user.name "GitHub Actions"
+        
     # Commit and push results to a new branch (temporary)
     - name: Commit and push results to new branch
       env:
