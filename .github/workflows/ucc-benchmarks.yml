@@ -51,5 +51,5 @@ jobs:
           git add benchmarks/*
           git status
           git commit -m "Update benchmark results" || echo "No changes to commit"
-          git push origin HEAD:${{ github.head_ref || github.ref_name }}
+          git push --force origin HEAD:${{ github.head_ref || github.ref_name }}
 
