@@ -44,17 +44,7 @@ jobs:
               python ./benchmarks/scripts/plot_avg_benchmarks_over_time.py && \
               python ./benchmarks/scripts/plot_latest_benchmarks.py
             "
-            
-    # Debug: List the contents of the benchmarks/results directory
-    - name: Check benchmark results
-      run: |
-        echo "Listing generated files in benchmarks/results:"
-        ls -R benchmarks/results || echo "No results found"
-        echo "Current directory"
-        pwd
-        git branch
-        git status
-        
+
     # Commit and push benchmark results
     - name: Configure Git for commit
       run: |
