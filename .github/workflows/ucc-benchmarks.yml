@@ -40,8 +40,16 @@ jobs:
           -v "${{ github.workspace }}:/ucc" \
           ucc-benchmark bash -c "
             source /venv/bin/activate && \
-            ./benchmarks/scripts/small_test.sh
-          "
+            ./benchmarks/scripts/small_test.sh && \
+          echo "Listing generated files in benchmarks/results:" && \
+        ls -R benchmarks/results || echo "No results found"
+        "
+    # Debug: List the contents of the benchmarks/results directory
+    - name: Check benchmark results
+      run: |
+        echo "Listing generated files in benchmarks/results:"
+        ls -R benchmarks/results || echo "No results found"
+        
     # Commit and push benchmark results
     - name: Configure Git for commit
       run: |
