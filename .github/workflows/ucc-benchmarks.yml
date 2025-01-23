@@ -42,21 +42,24 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
       
-      # Commit and push results to a new branch
-      - name: Commit and push results to new branch
+      # Commit and push benchmark results to a fixed branch name
+      - name: Commit and push results
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Switch to the current HEAD (branch where benchmarks ran)
-          git switch --create auto-benchmark-$(date +%Y%m%d%H%M%S)
+          # Fixed branch name for benchmark results
+          BRANCH_NAME="auto-benchmarks"
       
+          # Switch to the current branch (HEAD)
+          git switch ${{ github.head_ref || github.ref_name }}
+          
           # Stage and commit changes
           git add benchmarks/*
           git status
           git commit -m "Update benchmark results" || echo "No changes to commit"
-      
-          # Push the new branch to the remote repository
-          git push origin HEAD
+          
+          # Push the changes to the fixed branch
+          git push origin HEAD:$BRANCH_NAME --force
       
       # Create a pull request
       - name: Create Pull Request
