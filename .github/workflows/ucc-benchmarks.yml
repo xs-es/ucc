@@ -40,9 +40,7 @@ jobs:
           -v "${{ github.workspace }}:/ucc" \
           ucc-benchmark bash -c "
               source /venv/bin/activate && \
-              ./benchmarks/scripts/run_benchmarks.sh 8 && \
-              python ./benchmarks/scripts/plot_avg_benchmarks_over_time.py && \
-              python ./benchmarks/scripts/plot_latest_benchmarks.py
+              ./benchmarks/scripts/small_test.sh
             "
             
     # Debug: List the contents of the benchmarks/results directory
@@ -54,16 +52,6 @@ jobs:
         pwd
         git branch
         git status
-
-    - name: Check ignored files
-      run: git check-ignore -v benchmarks/results/*
-
-    - name: Force-add benchmark results
-      run: git add -f benchmarks/*
-
-    - name: Verify git status
-      run: git status
-
         
     # Commit and push benchmark results
     - name: Configure Git for commit
