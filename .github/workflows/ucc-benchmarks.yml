@@ -17,77 +17,77 @@ jobs:
 
     steps:
      # Checkout the latest main branch
-- name: Checkout main branch
-  uses: actions/checkout@v4
-  with:
-    fetch-depth: 0 # Ensure the full history is fetched
-
-# Create and switch to a temporary branch
-- name: Create temporary branch
-  run: |
-    git checkout main
-    git pull origin main
-    git switch -c auto-benchmark-$(date +%Y%m%d%H%M%S)
-
-# Build the Docker image
-- name: Build Docker image
-  run: docker build -t ucc-benchmark .
-
-# Run the benchmarks in the Docker container
-- name: Run benchmarks
-  run: |
-    docker run --rm \
-      -v "${{ github.workspace }}:/ucc" \
-      ucc-benchmark bash -c "
-        source /venv/bin/activate && \
-        ./benchmarks/scripts/small_test.sh
-      "
-
-# Commit and push results to a new branch (temporary)
-- name: Commit and push results to new branch
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  run: |
-    git add benchmarks/*
-    git status
-    git commit -m "Update benchmark results" || echo "No changes to commit"
-    git push origin HEAD
-
-# Create a pull request (PR) to main
-- name: Create Pull Request
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  run: |
-    PR_TITLE="Update benchmark results"
-    HEAD_BRANCH=$(git rev-parse --abbrev-ref HEAD) # Get the current branch name (auto-benchmark-*)
-    RESPONSE=$(curl -X POST \
-      -H "Authorization: token $GITHUB_TOKEN" \
-      -H "Accept: application/vnd.github+json" \
-      https://api.github.com/repos/${{ github.repository }}/pulls \
-      -d "$(jq -n \
-          --arg title "$PR_TITLE" \
-          --arg head "$HEAD_BRANCH" \
-          --arg base "main" \
-          '{title: $title, head: $head, base: $base}')")
-    echo "$RESPONSE" > pr_response.json
-    PR_NUMBER=$(jq -r '.number' <<< "$RESPONSE")
-    echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
-
-# Approve and merge the PR (if created)
-- name: Auto-Approve and Merge Pull Request
-  if: env.PR_NUMBER != ''
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  run: |
-    PR_NUMBER=$(jq -r '.number' < pr_response.json)
-    curl -X POST \
-      -H "Authorization: token $GITHUB_TOKEN" \
-      -H "Accept: application/vnd.github+json" \
-      https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/reviews \
-      -d '{"event": "APPROVE"}'
-    curl -X PUT \
-      -H "Authorization: token $GITHUB_TOKEN" \
-      -H "Accept: application/vnd.github+json" \
-      https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/merge \
-      -d '{"merge_method": "squash"}'
+    - name: Checkout main branch
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Ensure the full history is fetched
+    
+    # Create and switch to a temporary branch
+    - name: Create temporary branch
+      run: |
+        git checkout main
+        git pull origin main
+        git switch -c auto-benchmark-$(date +%Y%m%d%H%M%S)
+    
+    # Build the Docker image
+    - name: Build Docker image
+      run: docker build -t ucc-benchmark .
+    
+    # Run the benchmarks in the Docker container
+    - name: Run benchmarks
+      run: |
+        docker run --rm \
+          -v "${{ github.workspace }}:/ucc" \
+          ucc-benchmark bash -c "
+            source /venv/bin/activate && \
+            ./benchmarks/scripts/small_test.sh
+          "
+    
+    # Commit and push results to a new branch (temporary)
+    - name: Commit and push results to new branch
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git add benchmarks/*
+        git status
+        git commit -m "Update benchmark results" || echo "No changes to commit"
+        git push origin HEAD
+    
+    # Create a pull request (PR) to main
+    - name: Create Pull Request
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        PR_TITLE="Update benchmark results"
+        HEAD_BRANCH=$(git rev-parse --abbrev-ref HEAD) # Get the current branch name (auto-benchmark-*)
+        RESPONSE=$(curl -X POST \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github+json" \
+          https://api.github.com/repos/${{ github.repository }}/pulls \
+          -d "$(jq -n \
+              --arg title "$PR_TITLE" \
+              --arg head "$HEAD_BRANCH" \
+              --arg base "main" \
+              '{title: $title, head: $head, base: $base}')")
+        echo "$RESPONSE" > pr_response.json
+        PR_NUMBER=$(jq -r '.number' <<< "$RESPONSE")
+        echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+    
+    # Approve and merge the PR (if created)
+    - name: Auto-Approve and Merge Pull Request
+      if: env.PR_NUMBER != ''
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        PR_NUMBER=$(jq -r '.number' < pr_response.json)
+        curl -X POST \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github+json" \
+          https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/reviews \
+          -d '{"event": "APPROVE"}'
+        curl -X PUT \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github+json" \
+          https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/merge \
+          -d '{"merge_method": "squash"}'
 
