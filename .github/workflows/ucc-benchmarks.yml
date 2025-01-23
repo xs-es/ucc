@@ -33,7 +33,7 @@ jobs:
       - name: Run benchmarks
         run: |
           docker run --rm \
-            -v "${{ github.workspace }}:/ucc" \
+            -v "/home/runner/work/ucc/ucc:/ucc" \
             ucc-benchmark bash -c "
               source /venv/bin/activate && \
               ./benchmarks/scripts/small_test.sh
