@@ -16,19 +16,12 @@ jobs:
     runs-on: ucc-benchmarks-8-core-U22.04
 
     steps:
-      # Checkout the repository
-      - name: Checkout code
+      # Checkout the repository and branch
+      - name: Checkout branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Ensure the full history is fetched
-
-      # Checkout the branch to run benchmarks on
-      - name: Checkout branch to benchmark
-        run: |
-          # Ensure we are working with the correct branch from the event or input
-          BRANCH_TO_CHECKOUT="${{ github.event.inputs.branch || 'main' }}"
-          git checkout $BRANCH_TO_CHECKOUT
-          git pull origin $BRANCH_TO_CHECKOUT # Ensure we're up to date
+          ref: ${{ github.event.inputs.branch || 'main' }} # Checkout the branch specified by input or default to main
 
       # Set Git user for commit
       - name: Configure Git user
@@ -52,17 +45,26 @@ jobs:
               python ./benchmarks/scripts/plot_latest_benchmarks.py
             "
 
-      # Create a branch and commit benchmark results
+      # Commit and push results to a new branch
       - name: Commit and push results to new branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        id: commit_results
         run: |
+          # Set Git user name and email
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+      
+          # Create a new branch for the benchmark results
           BRANCH_NAME="auto-benchmark-$(date +%Y%m%d%H%M%S)"
           git checkout -b $BRANCH_NAME
+      
+          # Add and commit changes
           git add benchmarks/*
           git commit -m "Update benchmark results" || echo "No changes to commit"
+      
+          # Push the new branch to origin
           git push origin $BRANCH_NAME
+
 
       # Create a pull request
       - name: Create Pull Request
