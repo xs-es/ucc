@@ -71,8 +71,8 @@ We run benchmarks regularly to compare against the most recent versions of the m
 ![alt text](benchmarks/latest_compiler_benchmarks_by_circuit.png)
 And here you can see progress over time (changes usually indicate a newer version came out):
 ![alt text](benchmarks/avg_compiler_benchmarks_over_time.png)
-Note that the compile times before 2024-12-10 may have been run on different classical compute instances, so their exact runtime is not as important to compare as their relative performance with respect to other compilers.
-After 2024-12-10, all data present in this plot should be run on the same compute instance using our [ucc-benchmarks](https://github.com/unitaryfund/ucc/blob/main/.github/workflows/ucc-benchmarks.yml) GitHub Actions workflow. 
+Note that the compile times before 2024-12-10 may have been run on different classical compute instances, so their exact runtime is not reported here, but you can find this data in benchmarks/results.
+After 2024-12-10, all data present in this plot is on the same compute instance using our [ucc-benchmarks](https://github.com/unitaryfund/ucc/blob/main/.github/workflows/ucc-benchmarks.yml) GitHub Actions workflow. 
 <!-- end-how-does-ucc-stack-up -->
 
 ## Benchmarking
