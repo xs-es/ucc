@@ -22,6 +22,12 @@ jobs:
         with:
           fetch-depth: 0 # Ensure the full history is fetched
 
+      # Checkout the branch to run benchmarks on
+      - name: Checkout branch to benchmark
+        run: |
+          git checkout ${{ github.event.inputs.branch }}
+          git pull origin ${{ github.event.inputs.branch }} # Ensure we're up to date
+
       # Build the Docker image
       - name: Build Docker image
         run: docker build -t ucc-benchmark .
