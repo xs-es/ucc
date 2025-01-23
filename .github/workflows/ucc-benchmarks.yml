@@ -41,16 +41,27 @@ jobs:
           ucc-benchmark bash -c "
             source /venv/bin/activate && \
             ./benchmarks/scripts/small_test.sh && \
-          echo "Listing generated files in benchmarks/results:" && \
-        ls -R benchmarks/results || echo "No results found"
+          echo "Listing generated files in benchmarks/results:"
         "
     # Debug: List the contents of the benchmarks/results directory
     - name: Check benchmark results
       run: |
         echo "Listing generated files in benchmarks/results:"
         ls -R benchmarks/results || echo "No results found"
+        echo "Current directory"
         pwd
+        git branch
         git status
+
+    - name: Check ignored files
+      run: git check-ignore -v benchmarks/results/*
+
+    - name: Force-add benchmark results
+      run: git add -f benchmarks/*
+
+    - name: Verify git status
+      run: git status
+
         
     # Commit and push benchmark results
     - name: Configure Git for commit
