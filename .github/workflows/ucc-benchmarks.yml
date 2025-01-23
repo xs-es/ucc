@@ -26,58 +26,53 @@ jobs:
       - name: Build Docker image
         run: docker build -t ucc-benchmark .
 
-      # Run the benchmarks in the Docker container
+     # Run benchmarks in Docker container and commit the results
       - name: Run benchmarks
         run: |
           docker run --rm \
-            -v "/home/runner/work/ucc/ucc:/ucc" \
+            -v "${{ github.workspace }}:/ucc" \
             ucc-benchmark bash -c "
               source /venv/bin/activate && \
-              ./benchmarks/scripts/small_test.sh 
+              ./benchmarks/scripts/small_test.sh
             "
-            
+      
       # Configure Git for commit
       - name: Configure Git for commit
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
       
-      # Commit and push benchmark results to a fixed branch name
-      - name: Commit and push results
+      # Commit and push results to a new temporary branch
+      - name: Commit and push results to a new branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Fixed branch name for benchmark results
-          BRANCH_NAME="auto-benchmarks"
-      
-          # Switch to the current branch (HEAD)
-          git switch ${{ github.head_ref || github.ref_name }}
+          # Create a temporary branch based on the current state
+          git checkout -b auto-benchmarks
           
           # Stage and commit changes
           git add benchmarks/*
-          git status
           git commit -m "Update benchmark results" || echo "No changes to commit"
           
-          # Push the changes to the fixed branch
-          git push origin HEAD:$BRANCH_NAME --force
+          # Push the new branch to the remote repository
+          git push origin HEAD
       
-      # Create a pull request
+      # Create a pull request to merge the new branch into main
       - name: Create Pull Request
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: create_pr
         run: |
-          # Define the PR title and branch details
-          PR_TITLE="Update benchmark results"
-          HEAD_BRANCH=$(git rev-parse --abbrev-ref HEAD) # Get the current branch name (auto-benchmark-*)
-      
+          # Get the current branch name
+          HEAD_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          
           # Create the PR
           RESPONSE=$(curl -X POST \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/${{ github.repository }}/pulls \
             -d "$(jq -n \
-                --arg title "$PR_TITLE" \
+                --arg title "Update benchmark results" \
                 --arg head "$HEAD_BRANCH" \
                 --arg base "main" \
                 '{title: $title, head: $head, base: $base}')")
@@ -85,21 +80,21 @@ jobs:
           PR_NUMBER=$(jq -r '.number' <<< "$RESPONSE")
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
       
-      # Approve and merge the pull request
+      # Auto-approve and merge the pull request (if necessary)
       - name: Auto-Approve and Merge Pull Request
         if: env.PR_NUMBER != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PR_NUMBER=$(jq -r '.number' < pr_response.json)
-      
+          
           # Approve the PR
           curl -X POST \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/reviews \
             -d '{"event": "APPROVE"}'
-      
+          
           # Merge the PR
           curl -X PUT \
             -H "Authorization: token $GITHUB_TOKEN" \
