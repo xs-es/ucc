@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:  # Allows the workflow to be triggered manually
-    inputs:  # Optional inputs to customize the workflow when triggered manually
+  workflow_dispatch:
+    inputs:
       branch:
         description: 'Branch to run benchmarks on'
         required: false
@@ -38,18 +38,56 @@ jobs:
               python ./benchmarks/scripts/plot_latest_benchmarks.py
             "
 
-      # Commit and push benchmark results
-      - name: Configure Git for commit
+      # Create a branch and commit benchmark results
+      - name: Commit and push results to new branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: commit_results
         run: |
-          git config --global user.email "actions@github.com"
-          git config --global user.name "GitHub Actions"
-      - name: Commit and push results
+          BRANCH_NAME="auto-benchmark-$(date +%Y%m%d%H%M%S)"
+          git checkout -b $BRANCH_NAME
+          git add benchmarks/*
+          git commit -m "Update benchmark results" || echo "No changes to commit"
+          git push origin $BRANCH_NAME
+
+      # Create a pull request
+      - name: Create Pull Request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: create_pr
+        run: |
+          PR_TITLE="Update benchmark results"
+          RESPONSE=$(curl -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/pulls \
+            -d "$(jq -n \
+                --arg title "$PR_TITLE" \
+                --arg head "$BRANCH_NAME" \
+                --arg base "main" \
+                '{title: $title, head: $head, base: $base}')")
+          echo "$RESPONSE" > pr_response.json
+          PR_NUMBER=$(jq -r '.number' <<< "$RESPONSE")
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+
+      # Approve and merge the pull request
+      - name: Auto-Approve and Merge Pull Request
+        if: env.PR_NUMBER != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git switch ${{ github.head_ref || github.ref_name }}
-          git add benchmarks/*
-          git status
-          git commit -m "Update benchmark results" || echo "No changes to commit"
-          git push origin HEAD:${{ github.head_ref || github.ref_name }}
+          PR_NUMBER=$(cat pr_response.json | jq -r '.number')
 
+          # Approve the PR
+          curl -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/reviews \
+            -d '{"event": "APPROVE"}'
+
+          # Merge the PR
+          curl -X PUT \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/merge \
+            -d '{"merge_method": "squash"}'
