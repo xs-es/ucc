@@ -33,7 +33,7 @@ jobs:
             -v "/home/runner/work/ucc/ucc:/ucc" \
             ucc-benchmark bash -c "
               source /venv/bin/activate && \
-              ./benchmarks/scripts/small_test.sh &&  \
+              ./benchmarks/scripts/small_test.sh 
             "
             
       # Configure Git for commit
