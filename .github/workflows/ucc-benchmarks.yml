@@ -3,13 +3,13 @@ name: Run Benchmarks
 on:
   push:
     branches:
-      - PR-auto-merge-GH-Action
+      - main
   workflow_dispatch:
     inputs:
       branch:
         description: 'Branch to run benchmarks on'
         required: false
-        default: 'PR-auto-merge-GH-Action'
+        default: 'main
 
 jobs:
   run-benchmarks:
@@ -39,10 +39,12 @@ jobs:
         docker run --rm \
           -v "${{ github.workspace }}:/ucc" \
           ucc-benchmark bash -c "
-            source /venv/bin/activate && \
-            ./benchmarks/scripts/small_test.sh && \
-          echo "Listing generated files in benchmarks/results:"
-        "
+              source /venv/bin/activate && \
+              ./benchmarks/scripts/run_benchmarks.sh 8 && \
+              python ./benchmarks/scripts/plot_avg_benchmarks_over_time.py && \
+              python ./benchmarks/scripts/plot_latest_benchmarks.py
+            "
+            
     # Debug: List the contents of the benchmarks/results directory
     - name: Check benchmark results
       run: |
