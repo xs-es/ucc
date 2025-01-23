@@ -25,8 +25,16 @@ jobs:
       # Checkout the branch to run benchmarks on
       - name: Checkout branch to benchmark
         run: |
-          git checkout ${{ github.event.inputs.branch }}
-          git pull origin ${{ github.event.inputs.branch }} # Ensure we're up to date
+          # Ensure we are working with the correct branch from the event or input
+          BRANCH_TO_CHECKOUT="${{ github.event.inputs.branch || 'main' }}"
+          git checkout $BRANCH_TO_CHECKOUT
+          git pull origin $BRANCH_TO_CHECKOUT # Ensure we're up to date
+
+      # Set Git user for commit
+      - name: Configure Git user
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
 
       # Build the Docker image
       - name: Build Docker image
