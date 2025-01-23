@@ -23,12 +23,6 @@ jobs:
           fetch-depth: 0 # Ensure the full history is fetched
           ref: ${{ github.event.inputs.branch || 'main' }} # Checkout the branch specified by input or default to main
 
-      # Set Git user for commit
-      - name: Configure Git user
-        run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-
       # Build the Docker image
       - name: Build Docker image
         run: docker build -t ucc-benchmark .
@@ -56,14 +50,14 @@ jobs:
       
           # Create a new branch for the benchmark results
           BRANCH_NAME="auto-benchmark-$(date +%Y%m%d%H%M%S)"
-          git checkout -b $BRANCH_NAME
+          git switch $BRANCH_NAME
       
           # Add and commit changes
           git add benchmarks/*
           git commit -m "Update benchmark results" || echo "No changes to commit"
       
           # Push the new branch to origin
-          git push origin $BRANCH_NAME
+          git push origin HEAD:$BRANCH_NAME
 
 
       # Create a pull request
