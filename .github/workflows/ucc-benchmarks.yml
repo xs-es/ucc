@@ -9,7 +9,7 @@ on:
       branch:
         description: 'Branch to run benchmarks on'
         required: false
-        default: 'main
+        default: 'main'
 
 jobs:
   run-benchmarks:
