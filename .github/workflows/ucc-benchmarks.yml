@@ -49,6 +49,8 @@ jobs:
       run: |
         echo "Listing generated files in benchmarks/results:"
         ls -R benchmarks/results || echo "No results found"
+        pwd
+        git status
         
     # Commit and push benchmark results
     - name: Configure Git for commit
