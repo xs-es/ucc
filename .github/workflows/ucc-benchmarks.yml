@@ -38,63 +38,67 @@ jobs:
               python ./benchmarks/scripts/plot_avg_benchmarks_over_time.py && \
               python ./benchmarks/scripts/plot_latest_benchmarks.py
             "
-
+            # Configure Git for commit
+      - name: Configure Git for commit
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+      
       # Commit and push results to a new branch
       - name: Commit and push results to new branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Set Git user name and email
-          git config --global user.email "actions@github.com"
-          git config --global user.name "GitHub Actions"
+          # Switch to the current HEAD (branch where benchmarks ran)
+          git switch --create auto-benchmark-$(date +%Y%m%d%H%M%S)
       
-          # Create a new branch for the benchmark results
-          BRANCH_NAME="auto-benchmark-$(date +%Y%m%d%H%M%S)"
-          git switch $BRANCH_NAME
-      
-          # Add and commit changes
+          # Stage and commit changes
           git add benchmarks/*
+          git status
           git commit -m "Update benchmark results" || echo "No changes to commit"
       
-          # Push the new branch to origin
-          git push origin HEAD:$BRANCH_NAME
-
-
+          # Push the new branch to the remote repository
+          git push origin HEAD
+      
       # Create a pull request
       - name: Create Pull Request
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: create_pr
         run: |
+          # Define the PR title and branch details
           PR_TITLE="Update benchmark results"
+          HEAD_BRANCH=$(git rev-parse --abbrev-ref HEAD) # Get the current branch name (auto-benchmark-*)
+      
+          # Create the PR
           RESPONSE=$(curl -X POST \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/${{ github.repository }}/pulls \
             -d "$(jq -n \
                 --arg title "$PR_TITLE" \
-                --arg head "$BRANCH_NAME" \
+                --arg head "$HEAD_BRANCH" \
                 --arg base "main" \
                 '{title: $title, head: $head, base: $base}')")
           echo "$RESPONSE" > pr_response.json
           PR_NUMBER=$(jq -r '.number' <<< "$RESPONSE")
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
-
+      
       # Approve and merge the pull request
       - name: Auto-Approve and Merge Pull Request
         if: env.PR_NUMBER != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PR_NUMBER=$(cat pr_response.json | jq -r '.number')
-
+          PR_NUMBER=$(jq -r '.number' < pr_response.json)
+      
           # Approve the PR
           curl -X POST \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/reviews \
             -d '{"event": "APPROVE"}'
-
+      
           # Merge the PR
           curl -X PUT \
             -H "Authorization: token $GITHUB_TOKEN" \
