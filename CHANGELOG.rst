@@ -67,8 +67,6 @@ It also encompasses benchmarking scripts and utilities, tests, documentation, an
 - Other qcs/quil install errors #75 [@willzeng]
 - Hidden rust dependency on install #74 [@Misty-W]
 
-### Changed
-- 
 
 ### Removed
 - Remove innaccurate data for multi-q gates #86 [@jordandsullivan]
