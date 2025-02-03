@@ -30,7 +30,7 @@ For example, we can define a random circuit in Qiskit and optimize it using the 
 
    from qiskit.circuit.random import random_clifford_circuit
    import ucc
-   from ucc.benchmarks.utils import count_multi_qubit_gates_qiskit
+   from benchmarks.utils import count_multi_qubit_gates_qiskit
 
 
    gates = ["cx", "cz", "cy", "swap", "x", "y", "z", "s", "sdg", "h"]
