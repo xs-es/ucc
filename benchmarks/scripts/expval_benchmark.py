@@ -1,6 +1,7 @@
 import sys
-from typing import List, Set
+from typing import Any, List, Set
 import math
+import os.path
 
 import cirq
 import pytket
@@ -11,21 +12,31 @@ from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
 import numpy as np
 
-from common import cirq_compile, pytket_compile, qiskit_compile, save_results, get_native_rep
+from common import (
+    cirq_compile,
+    pytket_compile,
+    qiskit_compile,
+    save_results,
+    get_native_rep,
+)
 from ucc import compile as ucc_compile
 
-if len(sys.argv) < 4:
-    print("Usage: python expval_benchmark.py <qasm_filepath> <compiler> <results_folder>")
+if len(sys.argv) < 5:
+    print(
+        "Usage: python expval_benchmark.py <qasm_filepath> <compiler> <results_folder> <log details>"
+    )
     sys.exit(1)
 
 qasm_path: str = sys.argv[1]
 compiler_alias: str = sys.argv[2]
-results_folder: str = sys.argv[3]  # New argument for results folder
+results_folder: str = sys.argv[3]
+log: bool = True if sys.argv[4].lower() == "true" else False
 
 with open(qasm_path) as f:
     qasm_string = f.read()
 
-def compile_for_simulation(circuit, compiler_alias: str) -> qiskit.QuantumCircuit:
+
+def compile_for_simulation(circuit: Any, compiler_alias: str) -> qiskit.QuantumCircuit:
     """Compiles the circuit and converts it to qiskit so it can be run on the AerSimulator.
 
     Args:
@@ -45,9 +56,7 @@ def compile_for_simulation(circuit, compiler_alias: str) -> qiskit.QuantumCircui
             return ucc_compiled
 
         case "pytket":
-            pytket_compiled = pytket.qasm.circuit_to_qasm_str(
-                pytket_compile(circuit)
-            )
+            pytket_compiled = pytket.qasm.circuit_to_qasm_str(pytket_compile(circuit))
             pytket_compiled_qiskit = qasm2.loads(pytket_compiled)
             pytket_compiled_qiskit.save_density_matrix()
             return pytket_compiled_qiskit
@@ -122,22 +131,49 @@ def eval_exp_vals(compiled_circuit, uncompiled_qiskit_circuit, circuit_name):
         
         return compiled_ev, ideal_ev, obs_str
 
+
+def qiskit_gateset(circuit: qiskit.QuantumCircuit) -> set[str]:
+    everything = set(circuit.count_ops().keys())
+    return everything - {"save_density_matrix"}
+
+
 circuit_name = qasm_path.split('/')[-1]
-
+uncompiled_qiskit_circuit = get_native_rep(qasm_string, "qiskit")
 native_circuit = get_native_rep(qasm_string, compiler_alias)
-
-ideal_circuit = get_native_rep(qasm_string, "qiskit")
 compiled_circuit = compile_for_simulation(native_circuit, compiler_alias)
+
 compiled_ev, ideal_ev, obs_str = eval_exp_vals(compiled_circuit, native_circuit, circuit_name)
 
-results = [{
-    "compiler": compiler_alias,
-    "circuit_name": qasm_path.split('/')[-1].split('_N')[0],
-    "observable": obs_str,
-    "expval": compiled_ev,
-    "absoluate_error": abs(ideal_ev - compiled_ev),
-    "relative_error": abs(ideal_ev - compiled_ev) / abs(ideal_ev),
-    "ideal_expval": ideal_ev,
+
+if log:
+    circuit_name = os.path.split(qasm_path)[-1]
+    print(f"Compiling {circuit_name} with {compiler_alias}")
+    print(f"    Gate reduction: {len(uncompiled_qiskit_circuit)} -> {len(compiled_circuit) - 1}") # minus 1 to account for the addition of `save_density_matrix`
+    print(f"    Starting gate set: {qiskit_gateset(uncompiled_qiskit_circuit)}")
+    print(f"    Final gate set:    {qiskit_gateset(compiled_circuit)}")
+    print(f"    Starting gates: {uncompiled_qiskit_circuit.count_ops()}")
+    print(f"    Final gates:    {compiled_circuit.count_ops()}")
+
+density_matrix = simulate_density_matrix(compiled_circuit)
+
+obs_str = "Z" * compiled_circuit.num_qubits
+observable = Operator.from_label(obs_str)
+
+compiled_ev = np.real(density_matrix.expectation_value(observable))
+
+
+ideal_state = Statevector.from_instruction(uncompiled_qiskit_circuit)
+ideal_ev = np.real(ideal_state.expectation_value(observable))
+
+results = [
+    {
+        "compiler": compiler_alias,
+        "circuit_name": qasm_path.split("/")[-1].split("_N")[0],
+        "observable": obs_str,
+        "expval": compiled_ev,
+        "absoluate_error": abs(ideal_ev - compiled_ev),
+        "relative_error": abs(ideal_ev - compiled_ev) / abs(ideal_ev),
+        "ideal_expval": ideal_ev,
     }
 ]
 
