@@ -1,4 +1,6 @@
 import sys
+import os.path
+from typing import Any
 
 import cirq
 import pytket
@@ -9,21 +11,31 @@ from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
 import numpy as np
 
-from common import cirq_compile, pytket_compile, qiskit_compile, save_results, get_native_rep
+from common import (
+    cirq_compile,
+    pytket_compile,
+    qiskit_compile,
+    save_results,
+    get_native_rep,
+)
 from ucc import compile as ucc_compile
 
-if len(sys.argv) < 4:
-    print("Usage: python expval_benchmark.py <qasm_filepath> <compiler> <results_folder>")
+if len(sys.argv) < 5:
+    print(
+        "Usage: python expval_benchmark.py <qasm_filepath> <compiler> <results_folder> <log details>"
+    )
     sys.exit(1)
 
 qasm_path: str = sys.argv[1]
 compiler_alias: str = sys.argv[2]
-results_folder: str = sys.argv[3]  # New argument for results folder
+results_folder: str = sys.argv[3]
+log: bool = True if sys.argv[4].lower() == "true" else False
 
 with open(qasm_path) as f:
     qasm_string = f.read()
 
-def compile_for_simulation(circuit, compiler_alias: str) -> qiskit.QuantumCircuit:
+
+def compile_for_simulation(circuit: Any, compiler_alias: str) -> qiskit.QuantumCircuit:
     """Compiles the circuit and converts it to qiskit so it can be run on the AerSimulator.
 
     Args:
@@ -43,9 +55,7 @@ def compile_for_simulation(circuit, compiler_alias: str) -> qiskit.QuantumCircui
             return ucc_compiled
 
         case "pytket":
-            pytket_compiled = pytket.qasm.circuit_to_qasm_str(
-                pytket_compile(circuit)
-            )
+            pytket_compiled = pytket.qasm.circuit_to_qasm_str(pytket_compile(circuit))
             pytket_compiled_qiskit = qasm2.loads(pytket_compiled)
             pytket_compiled_qiskit.save_density_matrix()
             return pytket_compiled_qiskit
@@ -67,17 +77,34 @@ def compile_for_simulation(circuit, compiler_alias: str) -> qiskit.QuantumCircui
 
 def simulate_density_matrix(circuit: qiskit.QuantumCircuit) -> np.ndarray:
     depolarizing_noise = NoiseModel()
-    error = depolarizing_error(0.03, 1)
-    two_qubit_error = depolarizing_error(0.05, 2)
-    depolarizing_noise.add_all_qubit_quantum_error(error, ["u1", "u2", "u3"])
-    depolarizing_noise.add_all_qubit_quantum_error(two_qubit_error, ["cx"])
+    error = depolarizing_error(0.01, 1)
+    two_qubit_error = depolarizing_error(0.02, 2)
+    # TODO: errors should only be added to the gateset that we are compiling to
+    # but there is a bug with cirq currently compiling to U3 and CZ
+    depolarizing_noise.add_all_qubit_quantum_error(error, ["u1", "u2", "u3", "rx", "ry", "rz", "h"])
+    depolarizing_noise.add_all_qubit_quantum_error(two_qubit_error, ["cx", "cz"])
 
     simulator = AerSimulator(method="density_matrix", noise_model=depolarizing_noise)
     return simulator.run(circuit).result().data()["density_matrix"]
 
 
+def qiskit_gateset(circuit: qiskit.QuantumCircuit) -> set[str]:
+    everything = set(circuit.count_ops().keys())
+    return everything - {"save_density_matrix"}
+
+uncompiled_qiskit_circuit = get_native_rep(qasm_string, "qiskit")
 native_circuit = get_native_rep(qasm_string, compiler_alias)
 compiled_circuit = compile_for_simulation(native_circuit, compiler_alias)
+
+if log:
+    circuit_name = os.path.split(qasm_path)[-1]
+    print(f"Compiling {circuit_name} with {compiler_alias}")
+    print(f"    Gate reduction: {len(uncompiled_qiskit_circuit)} -> {len(compiled_circuit) - 1}") # minus 1 to account for the addition of `save_density_matrix`
+    print(f"    Starting gate set: {qiskit_gateset(uncompiled_qiskit_circuit)}")
+    print(f"    Final gate set:    {qiskit_gateset(compiled_circuit)}")
+    print(f"    Starting gates: {uncompiled_qiskit_circuit.count_ops()}")
+    print(f"    Final gates:    {compiled_circuit.count_ops()}")
+
 density_matrix = simulate_density_matrix(compiled_circuit)
 
 obs_str = "Z" * compiled_circuit.num_qubits
@@ -86,18 +113,18 @@ observable = Operator.from_label(obs_str)
 compiled_ev = np.real(density_matrix.expectation_value(observable))
 
 
-ideal_circuit = get_native_rep(qasm_string, "qiskit")
-ideal_state = Statevector.from_instruction(ideal_circuit)
+ideal_state = Statevector.from_instruction(uncompiled_qiskit_circuit)
 ideal_ev = np.real(ideal_state.expectation_value(observable))
 
-results = [{
-    "compiler": compiler_alias,
-    "circuit_name": qasm_path.split('/')[-1].split('_N')[0],
-    "observable": obs_str,
-    "expval": compiled_ev,
-    "absoluate_error": abs(ideal_ev - compiled_ev),
-    "relative_error": abs(ideal_ev - compiled_ev) / abs(ideal_ev),
-    "ideal_expval": ideal_ev,
+results = [
+    {
+        "compiler": compiler_alias,
+        "circuit_name": qasm_path.split("/")[-1].split("_N")[0],
+        "observable": obs_str,
+        "expval": compiled_ev,
+        "absoluate_error": abs(ideal_ev - compiled_ev),
+        "relative_error": abs(ideal_ev - compiled_ev) / abs(ideal_ev),
+        "ideal_expval": ideal_ev,
     }
 ]
 

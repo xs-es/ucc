@@ -186,7 +186,7 @@ def save_results(results_log, benchmark_name="gates", folder="../results", appen
         # Always write the DataFrame
         df.to_csv(f, header=not file_exists or not append, index=False)
 
-    print(f"Results saved to {file_path}")
+    print(f"Results saved to {file_name}")
 
 
 # Read the QASM files passed as command-line arguments
