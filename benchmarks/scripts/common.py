@@ -225,6 +225,7 @@ def annotate_and_adjust(ax, text, xy, color, previous_bboxes, offset=(0, 15), in
         ha='center',
         fontsize=fontsize,
         color=color,
+        rotation=15,
         arrowprops=dict(
             arrowstyle="->",
             color=color,
