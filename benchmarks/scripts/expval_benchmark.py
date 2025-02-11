@@ -1,7 +1,8 @@
 import sys
+import os.path
 from typing import Any, List, Set
 import math
-import os.path
+import numpy as np
 
 import cirq
 import pytket
@@ -141,12 +142,12 @@ circuit_name = qasm_path.split('/')[-1]
 uncompiled_qiskit_circuit = get_native_rep(qasm_string, "qiskit")
 native_circuit = get_native_rep(qasm_string, compiler_alias)
 compiled_circuit = compile_for_simulation(native_circuit, compiler_alias)
+circuit_name = os.path.split(qasm_path)[-1]
 
 compiled_ev, ideal_ev, obs_str = eval_exp_vals(compiled_circuit, native_circuit, circuit_name)
 
 
 if log:
-    circuit_name = os.path.split(qasm_path)[-1]
     print(f"Compiling {circuit_name} with {compiler_alias}")
     print(f"    Gate reduction: {len(uncompiled_qiskit_circuit)} -> {len(compiled_circuit) - 1}") # minus 1 to account for the addition of `save_density_matrix`
     print(f"    Starting gate set: {qiskit_gateset(uncompiled_qiskit_circuit)}")
@@ -154,21 +155,31 @@ if log:
     print(f"    Starting gates: {uncompiled_qiskit_circuit.count_ops()}")
     print(f"    Final gates:    {compiled_circuit.count_ops()}")
 
-density_matrix = simulate_density_matrix(compiled_circuit)
 
-obs_str = "Z" * compiled_circuit.num_qubits
-observable = Operator.from_label(obs_str)
+def eval_exp_vals(compiled_circuit, uncompiled_qiskit_circuit, circuit_name):
+    """Calculates the expectation values of observables based on input benchmark circuit."""
+    circuit_short_name = circuit_name.split("_N")[0]
+    if circuit_short_name == "qv":
+        compiled_circuit.measure_all()
+        uncompiled_qiskit_circuit.measure_all()
+        return estimate_heavy_output(compiled_circuit), estimate_heavy_output(uncompiled_qiskit_circuit), "heavy_output_prob"
+    else:
+        obs_str = "Z" * compiled_circuit.num_qubits
+        observable = Operator.from_label(obs_str)
+        density_matrix = simulate_density_matrix(compiled_circuit)
+        compiled_ev = np.real(density_matrix.expectation_value(observable))
+        ideal_state = Statevector.from_instruction(uncompiled_qiskit_circuit)
+        ideal_ev = np.real(ideal_state.expectation_value(observable))
+        
+        return compiled_ev, ideal_ev, obs_str
 
-compiled_ev = np.real(density_matrix.expectation_value(observable))
 
-
-ideal_state = Statevector.from_instruction(uncompiled_qiskit_circuit)
-ideal_ev = np.real(ideal_state.expectation_value(observable))
+compiled_ev, ideal_ev, obs_str = eval_exp_vals(compiled_circuit, uncompiled_qiskit_circuit, circuit_name)
 
 results = [
     {
         "compiler": compiler_alias,
-        "circuit_name": qasm_path.split("/")[-1].split("_N")[0],
+        "circuit_name": circuit_name.split("_N")[0],
         "observable": obs_str,
         "expval": compiled_ev,
         "absoluate_error": abs(ideal_ev - compiled_ev),
