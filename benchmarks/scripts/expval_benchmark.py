@@ -76,10 +76,10 @@ def compile_for_simulation(circuit: Any, compiler_alias: str) -> qiskit.QuantumC
         case _:
             raise ValueError(f"Unknown compiler alias: {compiler_alias}")
 
-def depolarizing_error_model(one_q_err = (0.01, 1), two_q_err=(0.02, 2)):
+def depolarizing_error_model(one_q_err = 0.01, two_q_err = 0.02):
     depolarizing_noise = NoiseModel()
-    error = depolarizing_error(one_q_err[0], one_q_err[1])
-    two_qubit_error = depolarizing_error(two_q_err[0], two_q_err[1])
+    error = depolarizing_error(one_q_err, 1)
+    two_qubit_error = depolarizing_error(two_q_err, 2)
     # TODO: errors should only be added to the gateset that we are compiling to
     # but there is a bug with cirq currently compiling to U3 and CZ
     depolarizing_noise.add_all_qubit_quantum_error(error, ["u1", "u2", "u3", "rx", "ry", "rz", "h"])
@@ -100,11 +100,11 @@ def get_heavy_bitstrings(circuit: qiskit.QuantumCircuit) -> Set[str]:
     return set(bitstring for (bitstring, p) in probs if p > median)
 
 
-def estimate_heavy_output(circuit: qiskit.QuantumCircuit) -> List[float]:   
+def estimate_heavy_output(circuit: qiskit.QuantumCircuit, one_q_err = 0.01, two_q_err = 0.02) -> List[float]:   
     # Determine the heavy bitstrings.
     heavy_bitstrings = get_heavy_bitstrings(circuit)
     # Count the number of heavy bitstrings sampled on the backend.
-    simulator = AerSimulator(method="statevector", noise_model=depolarizing_error_model())
+    simulator = AerSimulator(method="statevector", noise_model=depolarizing_error_model(one_q_err, two_q_err))
     result =  simulator.run(circuit).result()
 
     heavy_counts = sum([result.get_counts().get(bitstring, 0) for bitstring in heavy_bitstrings])
@@ -138,7 +138,7 @@ def eval_exp_vals(compiled_circuit, uncompiled_qiskit_circuit, circuit_name):
     if circuit_short_name == "qv":
         compiled_circuit.measure_all()
         uncompiled_qiskit_circuit.measure_all()
-        return estimate_heavy_output(compiled_circuit), estimate_heavy_output(uncompiled_qiskit_circuit), "heavy_output_prob"
+        return estimate_heavy_output(compiled_circuit), estimate_heavy_output(uncompiled_qiskit_circuit, 0, 0), "heavy_output_prob"
     else:
         obs_str = "Z" * compiled_circuit.num_qubits
         observable = Operator.from_label(obs_str)
