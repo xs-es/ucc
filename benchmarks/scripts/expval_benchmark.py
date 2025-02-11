@@ -1,6 +1,8 @@
 import sys
 import os.path
-from typing import Any
+from typing import Any, List, Set
+import math
+import numpy as np
 
 import cirq
 import pytket
@@ -74,19 +76,43 @@ def compile_for_simulation(circuit: Any, compiler_alias: str) -> qiskit.QuantumC
         case _:
             raise ValueError(f"Unknown compiler alias: {compiler_alias}")
 
-
-def simulate_density_matrix(circuit: qiskit.QuantumCircuit) -> np.ndarray:
+def depolarizing_error_model(one_q_err = (0.01, 1), two_q_err=(0.02, 2)):
     depolarizing_noise = NoiseModel()
-    error = depolarizing_error(0.01, 1)
-    two_qubit_error = depolarizing_error(0.02, 2)
+    error = depolarizing_error(one_q_err[0], one_q_err[1])
+    two_qubit_error = depolarizing_error(two_q_err[0], two_q_err[1])
     # TODO: errors should only be added to the gateset that we are compiling to
     # but there is a bug with cirq currently compiling to U3 and CZ
     depolarizing_noise.add_all_qubit_quantum_error(error, ["u1", "u2", "u3", "rx", "ry", "rz", "h"])
     depolarizing_noise.add_all_qubit_quantum_error(two_qubit_error, ["cx", "cz"])
+    return depolarizing_noise
 
-    simulator = AerSimulator(method="density_matrix", noise_model=depolarizing_noise)
+
+def simulate_density_matrix(circuit: qiskit.QuantumCircuit) -> np.ndarray:
+    simulator = AerSimulator(method="density_matrix", noise_model=depolarizing_error_model())
     return simulator.run(circuit).result().data()["density_matrix"]
 
+
+def get_heavy_bitstrings(circuit: qiskit.QuantumCircuit) -> Set[str]:
+    simulator = AerSimulator(method="statevector")
+    result = simulator.run(circuit).result()
+    probs = list(result.get_counts().items())
+    median = np.median([p for (_, p) in probs])
+    return set(bitstring for (bitstring, p) in probs if p > median)
+
+
+def estimate_heavy_output(circuit: qiskit.QuantumCircuit) -> List[float]:   
+    # Determine the heavy bitstrings.
+    heavy_bitstrings = get_heavy_bitstrings(circuit)
+    # Count the number of heavy bitstrings sampled on the backend.
+    simulator = AerSimulator(method="statevector", noise_model=depolarizing_error_model())
+    result =  simulator.run(circuit).result()
+
+    heavy_counts = sum([result.get_counts().get(bitstring, 0) for bitstring in heavy_bitstrings])
+    nshots = 10000
+    return (
+        heavy_counts - 2 * math.sqrt(heavy_counts * (nshots - heavy_counts))
+    ) / nshots
+    
 
 def qiskit_gateset(circuit: qiskit.QuantumCircuit) -> set[str]:
     everything = set(circuit.count_ops().keys())
@@ -95,9 +121,9 @@ def qiskit_gateset(circuit: qiskit.QuantumCircuit) -> set[str]:
 uncompiled_qiskit_circuit = get_native_rep(qasm_string, "qiskit")
 native_circuit = get_native_rep(qasm_string, compiler_alias)
 compiled_circuit = compile_for_simulation(native_circuit, compiler_alias)
+circuit_name = os.path.split(qasm_path)[-1]
 
 if log:
-    circuit_name = os.path.split(qasm_path)[-1]
     print(f"Compiling {circuit_name} with {compiler_alias}")
     print(f"    Gate reduction: {len(uncompiled_qiskit_circuit)} -> {len(compiled_circuit) - 1}") # minus 1 to account for the addition of `save_density_matrix`
     print(f"    Starting gate set: {qiskit_gateset(uncompiled_qiskit_circuit)}")
@@ -105,21 +131,31 @@ if log:
     print(f"    Starting gates: {uncompiled_qiskit_circuit.count_ops()}")
     print(f"    Final gates:    {compiled_circuit.count_ops()}")
 
-density_matrix = simulate_density_matrix(compiled_circuit)
 
-obs_str = "Z" * compiled_circuit.num_qubits
-observable = Operator.from_label(obs_str)
+def eval_exp_vals(compiled_circuit, uncompiled_qiskit_circuit, circuit_name):
+    """Calculates the expectation values of observables based on input benchmark circuit."""
+    circuit_short_name = circuit_name.split("_N")[0]
+    if circuit_short_name == "qv":
+        compiled_circuit.measure_all()
+        uncompiled_qiskit_circuit.measure_all()
+        return estimate_heavy_output(compiled_circuit), estimate_heavy_output(uncompiled_qiskit_circuit), "heavy_output_prob"
+    else:
+        obs_str = "Z" * compiled_circuit.num_qubits
+        observable = Operator.from_label(obs_str)
+        density_matrix = simulate_density_matrix(compiled_circuit)
+        compiled_ev = np.real(density_matrix.expectation_value(observable))
+        ideal_state = Statevector.from_instruction(uncompiled_qiskit_circuit)
+        ideal_ev = np.real(ideal_state.expectation_value(observable))
+        
+        return compiled_ev, ideal_ev, obs_str
 
-compiled_ev = np.real(density_matrix.expectation_value(observable))
 
-
-ideal_state = Statevector.from_instruction(uncompiled_qiskit_circuit)
-ideal_ev = np.real(ideal_state.expectation_value(observable))
+compiled_ev, ideal_ev, obs_str = eval_exp_vals(compiled_circuit, uncompiled_qiskit_circuit, circuit_name)
 
 results = [
     {
         "compiler": compiler_alias,
-        "circuit_name": qasm_path.split("/")[-1].split("_N")[0],
+        "circuit_name": circuit_name.split("_N")[0],
         "observable": obs_str,
         "expval": compiled_ev,
         "absoluate_error": abs(ideal_ev - compiled_ev),
