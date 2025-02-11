@@ -5,8 +5,8 @@
 # Prepare an N-qubit GHZ state and select the all ones state.
 
 from write_qasm import write_qasm
-from cirq_circuits import cirq_prep_select
-from qiskit_circuits import qcnn_circuit
+from cirq_circuits import VQE_ansatz, cirq_prep_select
+from qiskit_circuits import qcnn_circuit, qaoa_ising_ansatz
 from numpy import log2, ceil
 
 
