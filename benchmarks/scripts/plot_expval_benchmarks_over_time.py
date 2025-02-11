@@ -16,13 +16,13 @@ csv_files = glob.glob(os.path.join(results_folder, "expval_*.csv"))
 dfs = []  # List to store dataframes
 for file in csv_files:
     # Extract the date from the filename (assuming the date is after 'expval_' and before '.csv')
-    date_label = str(file).split('_')[1].split('.')[0]
+    date_label = str(file).split("_")[1].split(".")[0]
 
     # Load the CSV file into a DataFrame
     df = pd.read_csv(file, comment="#")
 
     # Add the extracted date as a new column in the dataframe
-    df['date'] = date_label
+    df["date"] = date_label
 
     # Append the dataframe to the list
     dfs.append(df)
@@ -31,31 +31,35 @@ for file in csv_files:
 df_all = pd.concat(dfs, ignore_index=True)
 
 # Convert the 'date' column to datetime
-df_all['date'] = pd.to_datetime(df_all['date'])
+df_all["date"] = pd.to_datetime(df_all["date"])
 
 # Step 6: Group by date and compiler, and calculate the average absolute error
-summary = df_all.groupby(['date', 'compiler']).agg(
-    avg_absolute_error=('absoluate_error', 'mean')
-).reset_index()
+summary = (
+    df_all.groupby(["date", "compiler"])
+    .agg(avg_absolute_error=("absoluate_error", "mean"))
+    .reset_index()
+)
 
 # Step 7: Set up the figure
 fig, ax = plt.subplots(figsize=(12, 6))
 
 # Set color map for different compilers
-unique_compilers = sorted(summary['compiler'].unique())
+unique_compilers = sorted(summary["compiler"].unique())
 colormap = plt.get_cmap("tab10", len(unique_compilers))
-color_map = {compiler: colormap(i) for i, compiler in enumerate(unique_compilers)}
+color_map = {
+    compiler: colormap(i) for i, compiler in enumerate(unique_compilers)
+}
 
 # Step 8: Plot average absolute error over time
 for compiler in unique_compilers:
-    compiler_data = summary[summary['compiler'] == compiler]
-    
+    compiler_data = summary[summary["compiler"] == compiler]
+
     ax.plot(
-        compiler_data['date'], 
-        compiler_data['avg_absolute_error'], 
-        label=compiler, 
-        color=color_map[compiler], 
-        marker='o'
+        compiler_data["date"],
+        compiler_data["avg_absolute_error"],
+        label=compiler,
+        color=color_map[compiler],
+        marker="o",
     )
 
 # Step 9: Customize plot
@@ -67,6 +71,8 @@ ax.legend(title="Compiler")
 
 # Adjust layout and save the figure
 plt.tight_layout()
-filename = os.path.join(directory_of_this_file, "../average_absolute_error_over_time.png")
+filename = os.path.join(
+    directory_of_this_file, "../average_absolute_error_over_time.png"
+)
 print(f"\n Saving plot to {filename}")
 fig.savefig(filename)

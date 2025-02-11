@@ -35,7 +35,9 @@ with open(qasm_path) as f:
     qasm_string = f.read()
 
 
-def compile_for_simulation(circuit: Any, compiler_alias: str) -> qiskit.QuantumCircuit:
+def compile_for_simulation(
+    circuit: Any, compiler_alias: str
+) -> qiskit.QuantumCircuit:
     """Compiles the circuit and converts it to qiskit so it can be run on the AerSimulator.
 
     Args:
@@ -55,7 +57,9 @@ def compile_for_simulation(circuit: Any, compiler_alias: str) -> qiskit.QuantumC
             return ucc_compiled
 
         case "pytket":
-            pytket_compiled = pytket.qasm.circuit_to_qasm_str(pytket_compile(circuit))
+            pytket_compiled = pytket.qasm.circuit_to_qasm_str(
+                pytket_compile(circuit)
+            )
             pytket_compiled_qiskit = qasm2.loads(pytket_compiled)
             pytket_compiled_qiskit.save_density_matrix()
             return pytket_compiled_qiskit
@@ -81,16 +85,23 @@ def simulate_density_matrix(circuit: qiskit.QuantumCircuit) -> np.ndarray:
     two_qubit_error = depolarizing_error(0.02, 2)
     # TODO: errors should only be added to the gateset that we are compiling to
     # but there is a bug with cirq currently compiling to U3 and CZ
-    depolarizing_noise.add_all_qubit_quantum_error(error, ["u1", "u2", "u3", "rx", "ry", "rz", "h"])
-    depolarizing_noise.add_all_qubit_quantum_error(two_qubit_error, ["cx", "cz"])
+    depolarizing_noise.add_all_qubit_quantum_error(
+        error, ["u1", "u2", "u3", "rx", "ry", "rz", "h"]
+    )
+    depolarizing_noise.add_all_qubit_quantum_error(
+        two_qubit_error, ["cx", "cz"]
+    )
 
-    simulator = AerSimulator(method="density_matrix", noise_model=depolarizing_noise)
+    simulator = AerSimulator(
+        method="density_matrix", noise_model=depolarizing_noise
+    )
     return simulator.run(circuit).result().data()["density_matrix"]
 
 
 def qiskit_gateset(circuit: qiskit.QuantumCircuit) -> set[str]:
     everything = set(circuit.count_ops().keys())
     return everything - {"save_density_matrix"}
+
 
 uncompiled_qiskit_circuit = get_native_rep(qasm_string, "qiskit")
 native_circuit = get_native_rep(qasm_string, compiler_alias)
@@ -99,8 +110,12 @@ compiled_circuit = compile_for_simulation(native_circuit, compiler_alias)
 if log:
     circuit_name = os.path.split(qasm_path)[-1]
     print(f"Compiling {circuit_name} with {compiler_alias}")
-    print(f"    Gate reduction: {len(uncompiled_qiskit_circuit)} -> {len(compiled_circuit) - 1}") # minus 1 to account for the addition of `save_density_matrix`
-    print(f"    Starting gate set: {qiskit_gateset(uncompiled_qiskit_circuit)}")
+    print(
+        f"    Gate reduction: {len(uncompiled_qiskit_circuit)} -> {len(compiled_circuit) - 1}"
+    )  # minus 1 to account for the addition of `save_density_matrix`
+    print(
+        f"    Starting gate set: {qiskit_gateset(uncompiled_qiskit_circuit)}"
+    )
     print(f"    Final gate set:    {qiskit_gateset(compiled_circuit)}")
     print(f"    Starting gates: {uncompiled_qiskit_circuit.count_ops()}")
     print(f"    Final gates:    {compiled_circuit.count_ops()}")
@@ -128,4 +143,6 @@ results = [
     }
 ]
 
-save_results(results, benchmark_name="expval", folder=results_folder, append=True)
+save_results(
+    results, benchmark_name="expval", folder=results_folder, append=True
+)
