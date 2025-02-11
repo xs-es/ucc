@@ -80,7 +80,7 @@ def compile_for_simulation(
         case _:
             raise ValueError(f"Unknown compiler alias: {compiler_alias}")
 
-def depolarizing_error_model(one_q_err = 0.01, two_q_err = 0.02):
+def depolarizing_error_model(one_q_err, two_q_err):
     depolarizing_noise = NoiseModel()
     error = depolarizing_error(one_q_err, 1)
     two_qubit_error = depolarizing_error(two_q_err, 2)
@@ -104,7 +104,7 @@ def get_heavy_bitstrings(circuit: qiskit.QuantumCircuit) -> Set[str]:
     return set(bitstring for (bitstring, p) in probs if p > median)
 
 
-def estimate_heavy_output(circuit: qiskit.QuantumCircuit, one_q_err = 0.01, two_q_err = 0.02) -> List[float]:   
+def estimate_heavy_output(circuit: qiskit.QuantumCircuit, one_q_err = 0.002, two_q_err = 0.02) -> List[float]:   
     # Determine the heavy bitstrings.
     heavy_bitstrings = get_heavy_bitstrings(circuit)
     # Count the number of heavy bitstrings sampled on the backend.
