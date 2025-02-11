@@ -162,7 +162,7 @@ def eval_exp_vals(compiled_circuit, uncompiled_qiskit_circuit, circuit_name):
     if circuit_short_name == "qv":
         compiled_circuit.measure_all()
         uncompiled_qiskit_circuit.measure_all()
-        return estimate_heavy_output(compiled_circuit), estimate_heavy_output(uncompiled_qiskit_circuit), "heavy_output_prob"
+        return estimate_heavy_output(compiled_circuit), estimate_heavy_output(uncompiled_qiskit_circuit, 0, 0), "heavy_output_prob"
     else:
         obs_str = "Z" * compiled_circuit.num_qubits
         observable = Operator.from_label(obs_str)
