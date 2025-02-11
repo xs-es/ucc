@@ -1,9 +1,9 @@
-from qbraid.transpiler import transpile
+from qbraid.transpiler import transpile as translate
 from qiskit import transpile as qiskit_transpile
 import os
 
 def write_qasm(circuit, circuit_name, version='2', basis_gates=[], folder="../qasm_circuits"):
-    qiskit_circuit = transpile(circuit, 'qiskit')
+    qiskit_circuit = translate(circuit, 'qiskit')
     if basis_gates:
         decomp_circuit = qiskit_transpile(
             qiskit_circuit, 
@@ -13,7 +13,7 @@ def write_qasm(circuit, circuit_name, version='2', basis_gates=[], folder="../qa
         decomp_circuit = qiskit_circuit
 
     # Generate QASM string
-    qasm_string = transpile(decomp_circuit, 'qasm' + version)
+    qasm_string = translate(decomp_circuit, 'qasm' + version)
 
     # Get the absolute path of the current script
     script_dir = os.path.dirname(os.path.abspath(__file__))
