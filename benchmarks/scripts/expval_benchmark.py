@@ -8,7 +8,6 @@ import qiskit
 from qiskit import qasm2
 from qiskit.quantum_info import Operator, Statevector
 from qiskit_aer import AerSimulator
-from qiskit_aer.noise import NoiseModel, depolarizing_error
 import numpy as np
 
 from common import (
@@ -17,22 +16,12 @@ from common import (
     qiskit_compile,
     save_results,
     get_native_rep,
+    create_depolarizing_noise_model,
 )
 from ucc import compile as ucc_compile
 
-if len(sys.argv) < 5:
-    print(
-        "Usage: python expval_benchmark.py <qasm_filepath> <compiler> <results_folder> <log details>"
-    )
-    sys.exit(1)
-
-qasm_path: str = sys.argv[1]
-compiler_alias: str = sys.argv[2]
-results_folder: str = sys.argv[3]
-log: bool = True if sys.argv[4].lower() == "true" else False
-
-with open(qasm_path) as f:
-    qasm_string = f.read()
+SINGLE_QUBIT_ERROR_RATE = 0.01
+TWO_QUBIT_ERROR_RATE = 0.03
 
 
 def compile_for_simulation(
@@ -80,18 +69,18 @@ def compile_for_simulation(
 
 
 def simulate_density_matrix(circuit: qiskit.QuantumCircuit) -> np.ndarray:
-    depolarizing_noise = NoiseModel()
-    error = depolarizing_error(0.01, 1)
-    two_qubit_error = depolarizing_error(0.02, 2)
-    # TODO: errors should only be added to the gateset that we are compiling to
-    # but there is a bug with cirq currently compiling to U3 and CZ
-    depolarizing_noise.add_all_qubit_quantum_error(
-        error, ["u1", "u2", "u3", "rx", "ry", "rz", "h"]
-    )
-    depolarizing_noise.add_all_qubit_quantum_error(
-        two_qubit_error, ["cx", "cz"]
-    )
+    """Simulates the given quantum circuit using a density matrix simulator
+    with depolarizing noise.
 
+    Args:
+        circuit: The quantum circuit to simulate.
+
+    Returns:
+        The resulting density matrix from the simulation.
+    """
+    depolarizing_noise = create_depolarizing_noise_model(
+        circuit, SINGLE_QUBIT_ERROR_RATE, TWO_QUBIT_ERROR_RATE
+    )
     simulator = AerSimulator(
         method="density_matrix", noise_model=depolarizing_noise
     )
@@ -103,46 +92,121 @@ def qiskit_gateset(circuit: qiskit.QuantumCircuit) -> set[str]:
     return everything - {"save_density_matrix"}
 
 
-uncompiled_qiskit_circuit = get_native_rep(qasm_string, "qiskit")
-native_circuit = get_native_rep(qasm_string, compiler_alias)
-compiled_circuit = compile_for_simulation(native_circuit, compiler_alias)
+def parse_arguments() -> tuple[str, str, str, bool]:
+    """Parses command-line arguments and returns them as a tuple.
 
-if log:
-    circuit_name = os.path.split(qasm_path)[-1]
-    print(f"Compiling {circuit_name} with {compiler_alias}")
-    print(
-        f"    Gate reduction: {len(uncompiled_qiskit_circuit)} -> {len(compiled_circuit) - 1}"
-    )  # minus 1 to account for the addition of `save_density_matrix`
-    print(
-        f"    Starting gate set: {qiskit_gateset(uncompiled_qiskit_circuit)}"
+    Returns:
+        A tuple containing the following elements:
+            - qasm_path: The file path to the QASM file.
+            - compiler_alias: The alias of the compiler to use.
+            - results_folder: The folder where results will be stored.
+            - log: A boolean indicating whether to log compilation
+                gateset/number details
+    """
+
+    if len(sys.argv) < 5:
+        print(
+            "Usage: python expval_benchmark.py <qasm_filepath> <compiler> <results_folder> <log details>"
+        )
+        sys.exit(1)
+
+    qasm_path: str = sys.argv[1]
+    compiler_alias: str = sys.argv[2]
+    results_folder: str = sys.argv[3]
+    log: bool = True if sys.argv[4].lower() == "true" else False
+
+    return qasm_path, compiler_alias, results_folder, log
+
+
+def fetch_pre_post_compiled_circuits(
+    qasm_path: str,
+    compiler_alias: str,
+    log_details: bool = False,
+) -> tuple[qiskit.QuantumCircuit, qiskit.QuantumCircuit]:
+    """Fetches and compiles a QASM circuit, returning both the uncompiled and compiled versions.
+
+    Args:
+        qasm_path: The file path to the QASM file.
+        compiler_alias: The compiler to use to compile the circuit.
+        log_details: If True, logs details about the compilation process. Defaults to False.
+    """
+
+    with open(qasm_path) as f:
+        qasm_string = f.read()
+
+    uncompiled_qiskit_circuit = get_native_rep(qasm_string, "qiskit")
+    native_circuit = get_native_rep(qasm_string, compiler_alias)
+    compiled_qiskit_circuit = compile_for_simulation(
+        native_circuit, compiler_alias
     )
-    print(f"    Final gate set:    {qiskit_gateset(compiled_circuit)}")
-    print(f"    Starting gates: {uncompiled_qiskit_circuit.count_ops()}")
-    print(f"    Final gates:    {compiled_circuit.count_ops()}")
 
-density_matrix = simulate_density_matrix(compiled_circuit)
+    if log_details:
+        circuit_name = os.path.split(qasm_path)[-1]
+        print(f"Compiling {circuit_name} with {compiler_alias}")
+        print(
+            f"    Gate reduction: {len(uncompiled_qiskit_circuit)} -> {len(compiled_qiskit_circuit) - 1}"
+        )  # minus 1 to account for the addition of `save_density_matrix`
+        print(f"    Starting gate set: {qiskit_gateset(uncompiled_qiskit_circuit)}")
+        print(f"    Final gate set:    {qiskit_gateset(compiled_qiskit_circuit)}")
+        print(f"    Starting gates: {uncompiled_qiskit_circuit.count_ops()}")
+        print(f"    Final gates:    {compiled_qiskit_circuit.count_ops()}")
 
-obs_str = "Z" * compiled_circuit.num_qubits
-observable = Operator.from_label(obs_str)
-
-compiled_ev = np.real(density_matrix.expectation_value(observable))
+    return uncompiled_qiskit_circuit, compiled_qiskit_circuit
 
 
-ideal_state = Statevector.from_instruction(uncompiled_qiskit_circuit)
-ideal_ev = np.real(ideal_state.expectation_value(observable))
+def simulate_expvals(
+    uncompiled_circuit: qiskit.QuantumCircuit,
+    compiled_circuit: qiskit.QuantumCircuit,
+    observable: str,
+) -> tuple[float, float]:
+    """Simulates the expectation values of a given observable for
+    both uncompiled and compiled quantum circuits.
 
-results = [
-    {
-        "compiler": compiler_alias,
-        "circuit_name": qasm_path.split("/")[-1].split("_N")[0],
-        "observable": obs_str,
-        "expval": compiled_ev,
-        "absoluate_error": abs(ideal_ev - compiled_ev),
-        "relative_error": abs(ideal_ev - compiled_ev) / abs(ideal_ev),
-        "ideal_expval": ideal_ev,
-    }
-]
+    Args:
+        uncompiled_circuit: The original quantum circuit before compilation.
+        compiled_circuit: The quantum circuit after compilation.
+        observable: The observable for which the expectation value
+            is to be calculated, represented as a string.
 
-save_results(
-    results, benchmark_name="expval", folder=results_folder, append=True
-)
+    Returns:
+        A tuple containing the expectation values of the observable for the
+        uncompiled and compiled circuits, respectively.
+    """
+
+    density_matrix = simulate_density_matrix(compiled)
+
+    observable = Operator.from_label(observable)
+
+    compiled_ev = np.real(density_matrix.expectation_value(observable))
+
+    ideal_state = Statevector.from_instruction(uncompiled)
+    ideal_ev = np.real(ideal_state.expectation_value(observable))
+
+    return ideal_ev, compiled_ev
+
+
+if __name__ == "__main__":
+    qasm_path, compiler_alias, results_folder, log = parse_arguments()
+
+    uncompiled, compiled = fetch_pre_post_compiled_circuits(
+        qasm_path, compiler_alias, log_details=log
+    )
+
+    observable = "Z" * compiled.num_qubits
+    ideal_ev, compiled_ev = simulate_expvals(uncompiled, compiled, observable)
+
+    results = [
+        {
+            "compiler": compiler_alias,
+            "circuit_name": qasm_path.split("/")[-1].split("_N")[0],
+            "observable": observable,
+            "expval": compiled_ev,
+            "absolute_error": abs(ideal_ev - compiled_ev),
+            "relative_error": abs(ideal_ev - compiled_ev) / abs(ideal_ev),
+            "ideal_expval": ideal_ev,
+        }
+    ]
+
+    save_results(
+        results, benchmark_name="expval", folder=results_folder, append=True
+    )
