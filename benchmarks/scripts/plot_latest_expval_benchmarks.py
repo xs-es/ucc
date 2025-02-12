@@ -1,8 +1,10 @@
+import glob
 import os
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from datetime import datetime
+
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
 
 # Directory containing the CSV files
 directory = "../results"
@@ -11,19 +13,16 @@ directory = "../results"
 data = []
 
 # Process each CSV file
-for filename in os.listdir(directory):
-    if filename.startswith("expval_") and filename.endswith(".csv"):
-        # Extract the date from the filename
-        date_str = filename.split("_")[
-            1
-        ]  # Assuming the date is the second component
-        date = datetime.strptime(date_str, "%Y-%m-%d")
+for filepath in glob.glob(os.path.join(directory, "expval_*.csv")):
+    # Extract the date from the filename
+    filename = os.path.basename(filepath)
+    date_str = filename.split("_")[1]
+    date = datetime.strptime(date_str, "%Y-%m-%d")
 
-        # Read the CSV file and add the date
-        filepath = os.path.join(directory, filename)
-        df = pd.read_csv(filepath, comment="#")
-        df["date"] = date
-        data.append(df)
+    # Read the CSV file and add the date
+    df = pd.read_csv(filepath, comment="#")
+    df["date"] = date
+    data.append(df)
 
 # Combine all data into a single DataFrame
 data = pd.concat(data)
