@@ -53,7 +53,7 @@ plt.title(
     f"Distribution of Absolute Error by Compiler on {latest_date.strftime('%Y-%m-%d')}"
 )
 plt.xlabel("Compiler")
-plt.ylabel("Average Absolute Error")
+plt.ylabel("Absolute Error")
 plt.grid(True, axis="y", linestyle="--", alpha=0.7)
 plt.tight_layout()
 
