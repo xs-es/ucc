@@ -146,8 +146,12 @@ def fetch_pre_post_compiled_circuits(
         print(
             f"    Gate reduction: {len(uncompiled_qiskit_circuit)} -> {len(compiled_qiskit_circuit) - 1}"
         )  # minus 1 to account for the addition of `save_density_matrix`
-        print(f"    Starting gate set: {qiskit_gateset(uncompiled_qiskit_circuit)}")
-        print(f"    Final gate set:    {qiskit_gateset(compiled_qiskit_circuit)}")
+        print(
+            f"    Starting gate set: {qiskit_gateset(uncompiled_qiskit_circuit)}"
+        )
+        print(
+            f"    Final gate set:    {qiskit_gateset(compiled_qiskit_circuit)}"
+        )
         print(f"    Starting gates: {uncompiled_qiskit_circuit.count_ops()}")
         print(f"    Final gates:    {compiled_qiskit_circuit.count_ops()}")
 
