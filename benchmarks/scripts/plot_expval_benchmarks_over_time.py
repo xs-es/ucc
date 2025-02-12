@@ -36,7 +36,7 @@ df_all["date"] = pd.to_datetime(df_all["date"])
 # Step 6: Group by date and compiler, and calculate the average absolute error
 summary = (
     df_all.groupby(["date", "compiler"])
-    .agg(avg_absolute_error=("absoluate_error", "mean"))
+    .agg(avg_absolute_error=("absolute_error", "mean"))
     .reset_index()
 )
 
