@@ -24,7 +24,7 @@ write_qasm(
 )
 
 # ### QCNN circuit
-num_qubits = 100
+num_qubits = 10
 num_layers = int(ceil(log2(num_qubits)))
 
 seed = 12345

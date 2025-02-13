@@ -14,6 +14,8 @@ from pytket.passes import (
     AutoRebase,
 )
 from pytket.predicates import CompilationUnit
+import qiskit
+from qiskit_aer.noise import NoiseModel, depolarizing_error
 from qiskit import transpile as qiskit_transpile
 from qbraid.transpiler import transpile as translate
 from qiskit import __version__ as qiskit_version
@@ -109,6 +111,57 @@ def qiskit_compile(qiskit_circuit):
 # Cirq compilation
 def cirq_compile(cirq_circuit):
     return optimize_for_target_gateset(cirq_circuit, gateset=CZTargetGateset())
+
+
+def get_n_qubit_gateset(
+    circuit: qiskit.QuantumCircuit, num_qubits: int
+) -> set[str]:
+    """Extracts the set of gates of size num_qubits from a quantum circuit.
+
+    Args:
+        circuit: Quantum circuit.
+        num_qubits: The size of the gates to get.
+
+    Returns:
+        Set of string names of <num_qubits>-qubit gates.
+    """
+    return {
+        instr.operation.name
+        for instr in circuit.data
+        if instr.operation.num_qubits == num_qubits
+        and instr.operation.name != "measure"
+    }
+
+
+def create_depolarizing_noise_model(
+    circuit: qiskit.QuantumCircuit,
+    single_qubit_error_rate: float = 0.01,
+    two_qubit_error_rate: float = 0.03,
+) -> NoiseModel:
+    """Depolarizing noise model with error rates applied to the single and
+    two-qubit gates of the circuit.
+
+    Args:
+        circuit: Quantum circuit to apply the model to.
+        single_qubit_error_rate: Error rate for a single qubit gate.
+        two_qubit_error_rate: Error rate for a two qubit gate.
+
+    Returns:
+        Depolarizing noise model.
+    """
+    single_qubit_gates = get_n_qubit_gateset(circuit, num_qubits=1)
+    two_qubit_gates = get_n_qubit_gateset(circuit, num_qubits=2)
+
+    noise_model = NoiseModel()
+    noise_model.add_all_qubit_quantum_error(
+        depolarizing_error(single_qubit_error_rate, 1),
+        list(single_qubit_gates),
+    )
+    noise_model.add_all_qubit_quantum_error(
+        depolarizing_error(two_qubit_error_rate, 2), list(two_qubit_gates)
+    )
+
+    return noise_model
 
 
 # Multi-qubit gate count for PyTkets
@@ -208,7 +261,7 @@ def save_results(
         # Always write the DataFrame
         df.to_csv(f, header=not file_exists or not append, index=False)
 
-    print(f"Results saved to {file_path}")
+    print(f"Results saved to {file_name}")
 
 
 # Read the QASM files passed as command-line arguments
