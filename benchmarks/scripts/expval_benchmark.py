@@ -91,8 +91,8 @@ def depolarizing_error_model(one_q_err, two_q_err):
     return depolarizing_noise
 
 
-def simulate_density_matrix(circuit: qiskit.QuantumCircuit) -> np.ndarray:
-    simulator = AerSimulator(method="density_matrix", noise_model=depolarizing_error_model())
+def simulate_density_matrix(circuit: qiskit.QuantumCircuit,  one_q_err: float = 0.01, two_q_err: float = 0.03) -> np.ndarray:
+    simulator = AerSimulator(method="density_matrix", noise_model=depolarizing_error_model(one_q_err, two_q_err))
     return simulator.run(circuit).result().data()["density_matrix"]
 
 
@@ -104,7 +104,7 @@ def get_heavy_bitstrings(circuit: qiskit.QuantumCircuit) -> Set[str]:
     return set(bitstring for (bitstring, p) in probs if p > median)
 
 
-def estimate_heavy_output(circuit: qiskit.QuantumCircuit, one_q_err = 0.002, two_q_err = 0.02) -> List[float]:   
+def estimate_heavy_output(circuit: qiskit.QuantumCircuit, one_q_err: float = 0.002, two_q_err: float = 0.02) -> List[float]:   
     # Determine the heavy bitstrings.
     heavy_bitstrings = get_heavy_bitstrings(circuit)
     # Count the number of heavy bitstrings sampled on the backend.
