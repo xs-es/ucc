@@ -6,14 +6,14 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-# Directory containing the CSV files
-directory = "../results"
+directory_of_this_file = os.path.dirname(os.path.abspath(__file__))
+results_dir = os.path.join(directory_of_this_file, "../results")
 
 # Initialize a DataFrame to store combined data
 data = []
 
 # Process each CSV file
-for filepath in glob.glob(os.path.join(directory, "expval_*.csv")):
+for filepath in glob.glob(os.path.join(results_dir, "expval_*.csv")):
     # Extract the date from the filename
     filename = os.path.basename(filepath)
     date_str = filename.split("_")[1]
