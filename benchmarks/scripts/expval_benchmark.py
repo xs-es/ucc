@@ -99,9 +99,9 @@ def simulate_density_matrix(circuit: qiskit.QuantumCircuit,  one_q_err: float = 
 def get_heavy_bitstrings(circuit: qiskit.QuantumCircuit) -> Set[str]:
     simulator = AerSimulator(method="statevector")
     result = simulator.run(circuit).result()
-    probs = list(result.get_counts().items())
-    median = np.median([p for (_, p) in probs])
-    return set(bitstring for (bitstring, p) in probs if p > median)
+    counts = list(result.get_counts().items())
+    median = np.median([c for (_, c) in counts])
+    return set(bitstring for (bitstring, p) in counts if p > median)
 
 
 def estimate_heavy_output(circuit: qiskit.QuantumCircuit, one_q_err: float = 0.002, two_q_err: float = 0.02) -> List[float]:   
@@ -113,10 +113,10 @@ def estimate_heavy_output(circuit: qiskit.QuantumCircuit, one_q_err: float = 0.0
 
     heavy_counts = sum([result.get_counts().get(bitstring, 0) for bitstring in heavy_bitstrings])
     nshots = 10000
-    return (
+    hop = (
         heavy_counts - 2 * math.sqrt(heavy_counts * (nshots - heavy_counts))
     ) / nshots
-    
+    return hop
 
 def qiskit_gateset(circuit: qiskit.QuantumCircuit) -> set[str]:
     everything = set(circuit.count_ops().keys())
