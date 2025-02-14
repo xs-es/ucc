@@ -8,7 +8,7 @@
 
 The **Unitary Compiler Collection (UCC)** is a Python library for frontend-agnostic, high performance compilation of quantum circuits.
 
-UCC interfaces automatically with multiple quantum computing frameworks, including [Qiskit](https://github.com/Qiskit/qiskit), [Cirq](https://github.com/quantumlib/Cirq), and [PyTKET](https://github.com/CQCL/tket) and supports programs in OpenQASM 2 and [OpenQASM 3](https://openqasm.com/). For a full list of the latest supported interfaces, just call `ucc.supported_formats`.
+UCC interfaces automatically with multiple quantum computing frameworks, including [Qiskit](https://github.com/Qiskit/qiskit), [Cirq](https://github.com/quantumlib/Cirq), and [PyTKET](https://github.com/CQCL/tket) and supports programs in OpenQASM 2 and [OpenQASM 3](https://openqasm.com/). For a full list of the latest supported interfaces, just call `ucc.supported_circuit_formats`.
 
 
 **Want to know more?**
@@ -71,7 +71,8 @@ def test_cirq_compile():
 We run benchmarks regularly to compare against the most recent versions of the most popular quantum compiler frameworks for a range of circuits. Here's the latest:
 ![alt text](benchmarks/latest_compiler_benchmarks_by_circuit.png)
 
-In addition to raw compilation stats, we simulate the compiled circuits with a noisy density matrix simulation to see how each compiler impacts performance:
+In addition to raw compilation stats, we simulate the compiled circuits with a noisy density matrix simulation to see how each compiler impacts performance.
+Here we plot the absolute errors $|\langle O\rangle_{C_i,\text{ideal}} - \langle O\rangle_{C_i,\text{noisy}}|$ for a collection of circuits $C_i$.
 
 ![Violin plot showing absolute error of each compiler across a variety of circuits](benchmarks/latest_expval_benchmark_by_compiler.png)
 

@@ -34,9 +34,11 @@ df_all = pd.concat(dfs, ignore_index=True)
 df_all['date'] = pd.to_datetime(df_all['date'])
 
 # Step 6: Group by date and compiler, and calculate the average absolute error
-summary = df_all.groupby(['date', 'compiler']).agg(
-    avg_absolute_error=('absoluate_error', 'mean')
-).reset_index()
+summary = (
+    df_all.groupby(["date", "compiler"])
+    .agg(avg_absolute_error=("absolute_error", "mean"))
+    .reset_index()
+)
 
 # Step 7: Set up the figure
 fig, ax = plt.subplots(figsize=(12, 6))

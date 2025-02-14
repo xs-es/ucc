@@ -4,7 +4,9 @@ import os
 import pandas as pd
 import matplotlib
 from datetime import datetime
-from cirq import CZTargetGateset, optimize_for_target_gateset
+from typing import List
+from cirq import optimize_for_target_gateset
+import cirq
 from pytket.circuit import OpType
 from pytket.passes import (
     DecomposeBoxes,
@@ -14,6 +16,8 @@ from pytket.passes import (
     AutoRebase,
 )
 from pytket.predicates import CompilationUnit
+import qiskit
+from qiskit_aer.noise import NoiseModel, depolarizing_error
 from qiskit import transpile as qiskit_transpile
 from qbraid.transpiler import transpile as translate
 from qiskit import __version__ as qiskit_version
@@ -106,9 +110,152 @@ def qiskit_compile(qiskit_circuit):
     )
 
 
+class BenchmarkTargetGateset(cirq.TwoQubitCompilationTargetGateset):
+    """Target gateset for compiling circuits for benchmarking.
+
+     This is modeled off cirq's `CZCompilationTargetGateset`_, but instead:
+         * Decomposes non target gateset single-qubit gates into Rz, Ry gates versus XZPowGate.
+         * Decomposes two-qubit gates into CNOT gates versus CZPowGate.
+         * Overrides the base classes postprocess_transformers to eliminate the
+           merge_single_qubit_moments_to_phxz pass to avoid re-introducing XZPowGates.
+
+    The gate families accepted by this gateset are:
+     *  Single-Qubit Gates: `cirq.H`, `cirq.Rx`, `cirq.Ry`, `cirq.Rz`.
+     *  Two-Qubit Gates: `cirq.CNOT`
+     *  `cirq.MeasurementGate`
+
+     .. _CZCompilationTargetGateset: https://github.com/quantumlib/Cirq/blob/dd3df78c045a03b2de70b2d54d8582abbfc1f6c2/cirq-core/cirq/transformers/target_gatesets/cz_gateset.py#L27
+    """
+
+    def __init__(self):
+        """Initializes BenchmarkTargetGateset"""
+        super().__init__(
+            cirq.H,
+            cirq.CNOT,
+            cirq.Rx,
+            cirq.Ry,
+            cirq.Rz,
+            cirq.MeasurementGate,
+            name="BenchmarkTargetGateset",
+        )
+
+    def _decompose_single_qubit_operation(
+        self, op: cirq.Operation, moment_idx: int
+    ) -> cirq.OP_TREE:
+        if not cirq.protocols.has_unitary(op):
+            return NotImplemented
+
+        mat = cirq.unitary(op)
+
+        pre_phase, rotation, post_phase = (
+            cirq.linalg.deconstruct_single_qubit_matrix_into_angles(mat)
+        )
+        return [
+            cirq.rz(pre_phase).on(op.qubits[0]),
+            cirq.ry(rotation).on(op.qubits[0]),
+            cirq.rz(post_phase).on(op.qubits[0]),
+        ]
+
+    def _decompose_two_qubit_operation(
+        self, op: cirq.Operation, _
+    ) -> cirq.OP_TREE:
+        if not cirq.has_unitary(op):
+            return NotImplemented
+        mat = cirq.unitary(op)
+        q0, q1 = op.qubits
+        naive = cirq.two_qubit_matrix_to_cz_operations(
+            q0, q1, mat, allow_partial_czs=False
+        )
+        temp = cirq.map_operations_and_unroll(
+            cirq.Circuit(naive),
+            lambda op, _: (
+                [
+                    cirq.H(op.qubits[1]),
+                    cirq.CNOT(*op.qubits),
+                    cirq.H(op.qubits[1]),
+                ]
+                if op.gate == cirq.CZ
+                else op
+            ),
+        )
+        return cirq.merge_k_qubit_unitaries(
+            temp,
+            k=1,
+            rewriter=lambda op: self._decompose_single_qubit_operation(op, -1),
+        ).all_operations()
+
+    @property
+    def postprocess_transformers(self) -> List["cirq.TRANSFORMER"]:
+        """List of transformers which should be run after decomposing individual operations."""
+        processors: List["cirq.TRANSFORMER"] = [
+            cirq.transformers.drop_negligible_operations,
+            cirq.transformers.drop_empty_moments,
+        ]
+        if not self._preserve_moment_structure:
+            processors.append(cirq.transformers.stratified_circuit)
+        return processors
+
+    def __repr__(self) -> str:
+        return "BenchmarkTargetGateset()"
+
+
 # Cirq compilation
 def cirq_compile(cirq_circuit):
-    return optimize_for_target_gateset(cirq_circuit, gateset=CZTargetGateset())
+    res = optimize_for_target_gateset(
+        cirq_circuit, gateset=BenchmarkTargetGateset()
+    )
+    return res
+
+
+def get_n_qubit_gateset(
+    circuit: qiskit.QuantumCircuit, num_qubits: int
+) -> set[str]:
+    """Extracts the set of gates of size num_qubits from a quantum circuit.
+
+    Args:
+        circuit: Quantum circuit.
+        num_qubits: The size of the gates to get.
+
+    Returns:
+        Set of string names of <num_qubits>-qubit gates.
+    """
+    return {
+        instr.operation.name
+        for instr in circuit.data
+        if instr.operation.num_qubits == num_qubits
+        and instr.operation.name != "measure"
+    }
+
+
+def create_depolarizing_noise_model(
+    circuit: qiskit.QuantumCircuit,
+    single_qubit_error_rate: float = 0.01,
+    two_qubit_error_rate: float = 0.03,
+) -> NoiseModel:
+    """Depolarizing noise model with error rates applied to the single and
+    two-qubit gates of the circuit.
+
+    Args:
+        circuit: Quantum circuit to apply the model to.
+        single_qubit_error_rate: Error rate for a single qubit gate.
+        two_qubit_error_rate: Error rate for a two qubit gate.
+
+    Returns:
+        Depolarizing noise model.
+    """
+    single_qubit_gates = get_n_qubit_gateset(circuit, num_qubits=1)
+    two_qubit_gates = get_n_qubit_gateset(circuit, num_qubits=2)
+
+    noise_model = NoiseModel()
+    noise_model.add_all_qubit_quantum_error(
+        depolarizing_error(single_qubit_error_rate, 1),
+        list(single_qubit_gates),
+    )
+    noise_model.add_all_qubit_quantum_error(
+        depolarizing_error(two_qubit_error_rate, 2), list(two_qubit_gates)
+    )
+
+    return noise_model
 
 
 # Multi-qubit gate count for PyTkets
