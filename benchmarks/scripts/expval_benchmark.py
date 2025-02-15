@@ -1,8 +1,7 @@
 import sys
-import os.path
-from typing import Any, List, Set
 import math
-import numpy as np
+import os.path
+from typing import Any, Set, List
 
 import cirq
 import pytket
@@ -26,7 +25,9 @@ SINGLE_QUBIT_ERROR_RATE = 0.01
 TWO_QUBIT_ERROR_RATE = 0.03
 
 
-def compile_for_simulation(circuit: Any, compiler_alias: str) -> qiskit.QuantumCircuit:
+def compile_for_simulation(
+    circuit: Any, compiler_alias: str
+) -> qiskit.QuantumCircuit:
     """Compiles the circuit and converts it to qiskit so it can be run on the AerSimulator.
 
     Args:
@@ -46,7 +47,9 @@ def compile_for_simulation(circuit: Any, compiler_alias: str) -> qiskit.QuantumC
             return ucc_compiled
 
         case "pytket":
-            pytket_compiled = pytket.qasm.circuit_to_qasm_str(pytket_compile(circuit))
+            pytket_compiled = pytket.qasm.circuit_to_qasm_str(
+                pytket_compile(circuit)
+            )
             pytket_compiled_qiskit = qasm2.loads(pytket_compiled)
             pytket_compiled_qiskit.save_density_matrix()
             return pytket_compiled_qiskit
@@ -65,94 +68,29 @@ def compile_for_simulation(circuit: Any, compiler_alias: str) -> qiskit.QuantumC
         case _:
             raise ValueError(f"Unknown compiler alias: {compiler_alias}")
 
-def depolarizing_error_model(one_q_err, two_q_err):
-    depolarizing_noise = NoiseModel()
-    error = depolarizing_error(one_q_err, 1)
-    two_qubit_error = depolarizing_error(two_q_err, 2)
-    # TODO: errors should only be added to the gateset that we are compiling to
-    # but there is a bug with cirq currently compiling to U3 and CZ
-    depolarizing_noise.add_all_qubit_quantum_error(error, ["u1", "u2", "u3", "rx", "ry", "rz", "h"])
-    depolarizing_noise.add_all_qubit_quantum_error(two_qubit_error, ["cx", "cz"])
-    return depolarizing_noise
 
+def simulate_density_matrix(circuit: qiskit.QuantumCircuit) -> np.ndarray:
+    """Simulates the given quantum circuit using a density matrix simulator
+    with depolarizing noise.
 
-def simulate_density_matrix(circuit: qiskit.QuantumCircuit,  one_q_err: float = 0.01, two_q_err: float = 0.03) -> np.ndarray:
-    simulator = AerSimulator(method="density_matrix", noise_model=depolarizing_error_model(one_q_err, two_q_err))
+    Args:
+        circuit: The quantum circuit to simulate.
+
+    Returns:
+        The resulting density matrix from the simulation.
+    """
+    depolarizing_noise = create_depolarizing_noise_model(
+        circuit, SINGLE_QUBIT_ERROR_RATE, TWO_QUBIT_ERROR_RATE
+    )
+    simulator = AerSimulator(
+        method="density_matrix", noise_model=depolarizing_noise
+    )
     return simulator.run(circuit).result().data()["density_matrix"]
-
-
-def get_heavy_bitstrings(circuit: qiskit.QuantumCircuit) -> Set[str]:
-    simulator = AerSimulator(method="statevector")
-    result = simulator.run(circuit).result()
-    counts = list(result.get_counts().items())
-    median = np.median([c for (_, c) in counts])
-    return set(bitstring for (bitstring, p) in counts if p > median)
-
-
-def estimate_heavy_output(circuit: qiskit.QuantumCircuit, one_q_err: float = 0.002, two_q_err: float = 0.02) -> List[float]:   
-    # Determine the heavy bitstrings.
-    heavy_bitstrings = get_heavy_bitstrings(circuit)
-    # Count the number of heavy bitstrings sampled on the backend.
-    simulator = AerSimulator(method="statevector", noise_model=depolarizing_error_model(one_q_err, two_q_err))
-    result =  simulator.run(circuit).result()
-
-    heavy_counts = sum([result.get_counts().get(bitstring, 0) for bitstring in heavy_bitstrings])
-    nshots = 10000
-    hop = (
-        heavy_counts - 2 * math.sqrt(heavy_counts * (nshots - heavy_counts))
-    ) / nshots
-    return hop
-
-
-def eval_exp_vals(compiled_circuit, uncompiled_qiskit_circuit, circuit_name):
-    """Calculates the expectation values of observables based on input benchmark circuit."""
-    circuit_short_name = circuit_name.split("_N")[0]
-    if circuit_short_name == "qv":
-        compiled_circuit.measure_all()
-        uncompiled_qiskit_circuit.measure_all()
-        return estimate_heavy_output(compiled_circuit), estimate_heavy_output(uncompiled_qiskit_circuit, 0, 0), "heavy_output_prob"
-    else:
-        obs_str = "Z" * compiled_circuit.num_qubits
-        observable = Operator.from_label(obs_str)
-        density_matrix = simulate_density_matrix(compiled_circuit)
-        compiled_ev = np.real(density_matrix.expectation_value(observable))
-        ideal_state = Statevector.from_instruction(uncompiled_qiskit_circuit)
-        ideal_ev = np.real(ideal_state.expectation_value(observable))
-        
-        return compiled_ev, ideal_ev, obs_str
 
 
 def qiskit_gateset(circuit: qiskit.QuantumCircuit) -> set[str]:
     everything = set(circuit.count_ops().keys())
     return everything - {"save_density_matrix"}
-
-
-circuit_name = qasm_path.split('/')[-1]
-uncompiled_qiskit_circuit = get_native_rep(qasm_string, "qiskit")
-native_circuit = get_native_rep(qasm_string, compiler_alias)
-compiled_circuit = compile_for_simulation(native_circuit, compiler_alias)
-circuit_name = os.path.split(qasm_path)[-1]
-
-
-def eval_exp_vals(compiled_circuit, uncompiled_qiskit_circuit, circuit_name):
-    """Calculates the expectation values of observables based on input benchmark circuit."""
-    circuit_short_name = circuit_name.split("_N")[0]
-    if circuit_short_name == "qv":
-        compiled_circuit.measure_all()
-        uncompiled_qiskit_circuit.measure_all()
-        return estimate_heavy_output(compiled_circuit), estimate_heavy_output(uncompiled_qiskit_circuit, 0, 0), "heavy_output_prob"
-    else:
-        obs_str = "Z" * compiled_circuit.num_qubits
-        observable = Operator.from_label(obs_str)
-        density_matrix = simulate_density_matrix(compiled_circuit)
-        compiled_ev = np.real(density_matrix.expectation_value(observable))
-        ideal_state = Statevector.from_instruction(uncompiled_qiskit_circuit)
-        ideal_ev = np.real(ideal_state.expectation_value(observable))
-        
-        return compiled_ev, ideal_ev, obs_str
-      
-      
-compiled_ev, ideal_ev, obs_str = eval_exp_vals(compiled_circuit, native_circuit, circuit_name)
 
 
 def parse_arguments() -> tuple[str, str, str, bool]:
@@ -221,10 +159,36 @@ def fetch_pre_post_compiled_circuits(
     return uncompiled_qiskit_circuit, compiled_qiskit_circuit
 
 
+
+def get_heavy_bitstrings(circuit: qiskit.QuantumCircuit) -> Set[str]:
+    simulator = AerSimulator(method="statevector")
+    result = simulator.run(circuit).result()
+    counts = list(result.get_counts().items())
+    median = np.median([c for (_, c) in counts])
+    return set(bitstring for (bitstring, p) in counts if p > median)
+
+
+def estimate_heavy_output(circuit: qiskit.QuantumCircuit, qv_1q_err: float = 0.002, qv_2q_err: float = 0.02) -> List[float]:   
+    # Determine the heavy bitstrings.
+    heavy_bitstrings = get_heavy_bitstrings(circuit)
+    # Count the number of heavy bitstrings sampled on the backend.
+    simulator = AerSimulator(method="statevector", noise_model=create_depolarizing_noise_model(
+        circuit, qv_1q_err, qv_2q_err
+    ))
+    result =  simulator.run(circuit).result()
+
+    heavy_counts = sum([result.get_counts().get(bitstring, 0) for bitstring in heavy_bitstrings])
+    nshots = 10000
+    hop = (
+        heavy_counts - 2 * math.sqrt(heavy_counts * (nshots - heavy_counts))
+    ) / nshots
+    return hop
+
+
 def simulate_expvals(
     uncompiled_circuit: qiskit.QuantumCircuit,
     compiled_circuit: qiskit.QuantumCircuit,
-    observable: str,
+    circuit_name: str,
 ) -> tuple[float, float]:
     """Simulates the expectation values of a given observable for
     both uncompiled and compiled quantum circuits.
@@ -232,22 +196,28 @@ def simulate_expvals(
     Args:
         uncompiled_circuit: The original quantum circuit before compilation.
         compiled_circuit: The quantum circuit after compilation.
-        observable: The observable for which the expectation value
-            is to be calculated, represented as a string.
+        circuit_name: The name of the quantum circuit in string format.
 
     Returns:
         A tuple containing the expectation values of the observable for the
         uncompiled and compiled circuits, respectively.
     """
+    if circuit_name == "qv":
+        compiled_circuit.measure_all()
+        uncompiled_circuit.measure_all()
+        return estimate_heavy_output(compiled_circuit), estimate_heavy_output(uncompiled_circuit, 0, 0), "HOP"
 
-    density_matrix = simulate_density_matrix(compiled)
-    observable = Operator.from_label(observable)
-    compiled_ev = np.real(density_matrix.expectation_value(observable))
+    else:
+        density_matrix = simulate_density_matrix(compiled_circuit)
+        obs_str = "Z" * compiled.num_qubits
+        observable = Operator.from_label(obs_str)
 
-    ideal_state = Statevector.from_instruction(uncompiled)
-    ideal_ev = np.real(ideal_state.expectation_value(observable))
+        compiled_ev = np.real(density_matrix.expectation_value(observable))
 
-    return ideal_ev, compiled_ev
+        ideal_state = Statevector.from_instruction(uncompiled_circuit)
+        ideal_ev = np.real(ideal_state.expectation_value(observable))
+
+        return ideal_ev, compiled_ev, obs_str
 
 
 if __name__ == "__main__":
@@ -256,17 +226,14 @@ if __name__ == "__main__":
     uncompiled, compiled = fetch_pre_post_compiled_circuits(
         qasm_path, compiler_alias, log_details=log
     )
-
-    observable = "Z" * compiled.num_qubits
-    ideal_ev, compiled_ev = simulate_expvals(uncompiled, compiled, observable)
-    compiled_ev, ideal_ev, obs_str = eval_exp_vals(compiled_circuit, uncompiled_qiskit_circuit, circuit_name)
-
+    circuit_name = qasm_path.split("/")[-1].split("_N")[0]
+    ideal_ev, compiled_ev, obs_str = simulate_expvals(uncompiled, compiled, circuit_name)
 
     results = [
         {
             "compiler": compiler_alias,
-            "circuit_name": qasm_path.split("/")[-1].split("_N")[0],
-            "observable": observable,
+            "circuit_name": circuit_name,
+            "observable": obs_str,
             "expval": compiled_ev,
             "absolute_error": abs(ideal_ev - compiled_ev),
             "relative_error": abs(ideal_ev - compiled_ev) / abs(ideal_ev),
