@@ -43,7 +43,7 @@ fig = plt.figure(figsize=(12, 8))
 sns.violinplot(
     data=data_latest,
     x="compiler",
-    y="absoluate_error",
+    y="absolute_error",
     palette=color_map,
     density_norm="width",
 )
