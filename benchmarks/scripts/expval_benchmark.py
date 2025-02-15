@@ -1,7 +1,7 @@
 import sys
 import math
 import os.path
-from typing import Any, Set, List
+from typing import Any, Set
 
 import cirq
 import pytket
@@ -160,6 +160,7 @@ def fetch_pre_post_compiled_circuits(
 
 
 def get_heavy_bitstrings(circuit: qiskit.QuantumCircuit) -> Set[str]:
+    """ "Determine the heavy bitstrings of the circuit."""
     simulator = AerSimulator(method="statevector")
     result = simulator.run(circuit).result()
     counts = list(result.get_counts().items())
@@ -171,10 +172,20 @@ def estimate_heavy_output(
     circuit: qiskit.QuantumCircuit,
     qv_1q_err: float = 0.002,
     qv_2q_err: float = 0.02,
-) -> List[float]:
-    # Determine the heavy bitstrings.
+) -> float:
+    """Sample the heavy bitstrings on the backend and estimate the heavy output
+    probability from the counts of the heavy bitstrings.
+
+    Args:
+        circuit: The circuit for which to compute the heavy output metric.
+        qv_1q_err: The single qubit error rate for the backend noise model.
+        qv_2q_err: The two-qubit error rate for the backend noise model.
+
+    Returns:
+        The heavy output probability as a float.
+    """
     heavy_bitstrings = get_heavy_bitstrings(circuit)
-    # Count the number of heavy bitstrings sampled on the backend.
+
     simulator = AerSimulator(
         method="statevector",
         noise_model=create_depolarizing_noise_model(
