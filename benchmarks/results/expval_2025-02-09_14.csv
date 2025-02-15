@@ -1,5 +1,5 @@
 # Compiler versions: qiskit=1.3.0, cirq=1.4.1, pytket=1.32.0, ucc=0.2.0 # OS: Darwin Darwin Kernel Version 23.2.0: Wed Nov 15 21:53:18 PST 2023; root:xnu-10002.61.3~2/RELEASE_ARM64_T6000, Architecture: 64bit, CPU Cores: 8
-compiler,circuit_name,observable,expval,absoluate_error,relative_error,ideal_expval
+compiler,circuit_name,observable,expval,absolute_error,relative_error,ideal_expval
 pytket,qaoa_barabasi_albert,ZZZZZZZZZZ,0.0002445349208939949,0.007851794830512304,0.96979681801479,0.008096329751406298
 qiskit,qaoa_barabasi_albert,ZZZZZZZZZZ,0.00024453492089398794,0.00785179483051231,0.9697968180147909,0.008096329751406298
 ucc,qaoa_barabasi_albert,ZZZZZZZZZZ,-2.0745575321635783e-06,0.008098404308938462,1.0002562343180013,0.008096329751406298

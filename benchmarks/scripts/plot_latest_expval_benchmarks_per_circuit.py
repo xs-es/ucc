@@ -68,7 +68,7 @@ for i, (key, grp) in enumerate(df_latest.groupby("compiler")):
         [
             grp_indices + i * bar_width for grp_indices in grp_indices
         ],  # Shift bars for each compiler
-        grp["absoluate_error"],  # Absolute error data
+        grp["absolute_error"],  # Absolute error data
         width=bar_width,
         label=key,
         color=color_map[key],
