@@ -159,7 +159,6 @@ def fetch_pre_post_compiled_circuits(
     return uncompiled_qiskit_circuit, compiled_qiskit_circuit
 
 
-
 def get_heavy_bitstrings(circuit: qiskit.QuantumCircuit) -> Set[str]:
     simulator = AerSimulator(method="statevector")
     result = simulator.run(circuit).result()
@@ -168,16 +167,28 @@ def get_heavy_bitstrings(circuit: qiskit.QuantumCircuit) -> Set[str]:
     return set(bitstring for (bitstring, p) in counts if p > median)
 
 
-def estimate_heavy_output(circuit: qiskit.QuantumCircuit, qv_1q_err: float = 0.002, qv_2q_err: float = 0.02) -> List[float]:   
+def estimate_heavy_output(
+    circuit: qiskit.QuantumCircuit,
+    qv_1q_err: float = 0.002,
+    qv_2q_err: float = 0.02,
+) -> List[float]:
     # Determine the heavy bitstrings.
     heavy_bitstrings = get_heavy_bitstrings(circuit)
     # Count the number of heavy bitstrings sampled on the backend.
-    simulator = AerSimulator(method="statevector", noise_model=create_depolarizing_noise_model(
-        circuit, qv_1q_err, qv_2q_err
-    ))
-    result =  simulator.run(circuit).result()
+    simulator = AerSimulator(
+        method="statevector",
+        noise_model=create_depolarizing_noise_model(
+            circuit, qv_1q_err, qv_2q_err
+        ),
+    )
+    result = simulator.run(circuit).result()
 
-    heavy_counts = sum([result.get_counts().get(bitstring, 0) for bitstring in heavy_bitstrings])
+    heavy_counts = sum(
+        [
+            result.get_counts().get(bitstring, 0)
+            for bitstring in heavy_bitstrings
+        ]
+    )
     nshots = 10000
     hop = (
         heavy_counts - 2 * math.sqrt(heavy_counts * (nshots - heavy_counts))
@@ -205,7 +216,11 @@ def simulate_expvals(
     if circuit_name == "qv":
         compiled_circuit.measure_all()
         uncompiled_circuit.measure_all()
-        return estimate_heavy_output(compiled_circuit), estimate_heavy_output(uncompiled_circuit, 0, 0), "HOP"
+        return (
+            estimate_heavy_output(compiled_circuit),
+            estimate_heavy_output(uncompiled_circuit, 0, 0),
+            "HOP",
+        )
 
     else:
         density_matrix = simulate_density_matrix(compiled_circuit)
@@ -227,7 +242,9 @@ if __name__ == "__main__":
         qasm_path, compiler_alias, log_details=log
     )
     circuit_name = qasm_path.split("/")[-1].split("_N")[0]
-    ideal_ev, compiled_ev, obs_str = simulate_expvals(uncompiled, compiled, circuit_name)
+    ideal_ev, compiled_ev, obs_str = simulate_expvals(
+        uncompiled, compiled, circuit_name
+    )
 
     results = [
         {
