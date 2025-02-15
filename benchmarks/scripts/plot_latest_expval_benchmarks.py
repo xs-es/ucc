@@ -13,7 +13,6 @@ results_dir = os.path.join(directory_of_this_file, "../results")
 data = []
 
 # Process each CSV file
-
 for filepath in glob.glob(os.path.join(results_dir, "expval_*.csv")):
     # Extract the date from the filename
     filename = os.path.basename(filepath)
@@ -35,7 +34,9 @@ data_latest = data[data["date"] == latest_date]
 # Create a color map for compilers
 unique_compilers = sorted(data_latest["compiler"].unique())
 colormap = plt.get_cmap("tab10", len(unique_compilers))
-color_map = {compiler: colormap(i) for i, compiler in enumerate(unique_compilers)}
+color_map = {
+    compiler: colormap(i) for i, compiler in enumerate(unique_compilers)
+}
 
 # Plot the data using violin plots
 fig = plt.figure(figsize=(12, 8))
@@ -44,11 +45,13 @@ sns.violinplot(
     x="compiler",
     y="absoluate_error",
     palette=color_map,
-    density_norm="width"
+    density_norm="width",
 )
 
 # Customize the plot
-plt.title(f"Distribution of Absolute Error by Compiler on {latest_date.strftime('%Y-%m-%d')}")
+plt.title(
+    f"Distribution of Absolute Error by Compiler on {latest_date.strftime('%Y-%m-%d')}"
+)
 plt.xlabel("Compiler")
 plt.ylabel("Absolute Error")
 plt.grid(True, axis="y", linestyle="--", alpha=0.7)
@@ -56,6 +59,8 @@ plt.tight_layout()
 
 # Save the plot
 directory_of_this_file = os.path.dirname(os.path.abspath(__file__))
-filename = os.path.join(directory_of_this_file, "../latest_expval_benchmark_by_compiler.png")
+filename = os.path.join(
+    directory_of_this_file, "../latest_expval_benchmark_by_compiler.png"
+)
 print(f"\n Saving plot to {filename}")
 fig.savefig(filename)
