@@ -168,10 +168,9 @@ def get_heavy_bitstrings(circuit: qiskit.QuantumCircuit) -> Set[str]:
     return set(bitstring for (bitstring, p) in counts if p > median)
 
 
-def estimate_heavy_output(
+def estimate_heavy_output_prob(
     circuit: qiskit.QuantumCircuit,
-    qv_1q_err: float = 0.002,
-    qv_2q_err: float = 0.02,
+    noisy: bool = True
 ) -> float:
     """Sample the heavy bitstrings on the backend and estimate the heavy output
     probability from the counts of the heavy bitstrings.
@@ -186,6 +185,12 @@ def estimate_heavy_output(
     """
     heavy_bitstrings = get_heavy_bitstrings(circuit)
 
+    if noisy:
+        qv_1q_err = 0.002
+        qv_2q_err = 0.02
+    else:
+        qv_1q_err = 0.0
+        qv_2q_err = 0.0
     simulator = AerSimulator(
         method="statevector",
         noise_model=create_depolarizing_noise_model(
@@ -195,10 +200,8 @@ def estimate_heavy_output(
     result = simulator.run(circuit).result()
 
     heavy_counts = sum(
-        [
-            result.get_counts().get(bitstring, 0)
-            for bitstring in heavy_bitstrings
-        ]
+        result.get_counts().get(bitstring, 0)
+        for bitstring in heavy_bitstrings
     )
     nshots = 10000
     hop = (
@@ -228,8 +231,8 @@ def simulate_expvals(
         compiled_circuit.measure_all()
         uncompiled_circuit.measure_all()
         return (
-            estimate_heavy_output(compiled_circuit),
-            estimate_heavy_output(uncompiled_circuit, 0, 0),
+            estimate_heavy_output_prob(compiled_circuit, noisy=True),
+            estimate_heavy_output_prob(uncompiled_circuit,noisy=False),
             "HOP",
         )
 
