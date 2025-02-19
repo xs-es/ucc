@@ -162,7 +162,7 @@ def fetch_pre_post_compiled_circuits(
 def get_heavy_bitstrings(circuit: qiskit.QuantumCircuit) -> Set[str]:
     """ "Determine the heavy bitstrings of the circuit."""
     simulator = AerSimulator(method="statevector")
-    result = simulator.run(circuit).result()
+    result = simulator.run(circuit, shots=1024).result()
     counts = list(result.get_counts().items())
     median = np.median([c for (_, c) in counts])
     return set(bitstring for (bitstring, p) in counts if p > median)
@@ -203,7 +203,7 @@ def estimate_heavy_output_prob(
         result.get_counts().get(bitstring, 0)
         for bitstring in heavy_bitstrings
     )
-    nshots = 10000
+    nshots = 1024
     hop = (
         heavy_counts - 2 * math.sqrt(heavy_counts * (nshots - heavy_counts))
     ) / nshots
