@@ -185,17 +185,16 @@ def estimate_heavy_output_prob(
     heavy_bitstrings = get_heavy_bitstrings(circuit)
 
     if noisy:
-        qv_1q_err = 0.002
-        qv_2q_err = 0.02
+        simulator = AerSimulator(
+            method="statevector",
+            noise_model=create_depolarizing_noise_model(
+                circuit, SINGLE_QUBIT_ERROR_RATE, TWO_QUBIT_ERROR_RATE
+            ),
+        )
     else:
-        qv_1q_err = 0.0
-        qv_2q_err = 0.0
-    simulator = AerSimulator(
-        method="statevector",
-        noise_model=create_depolarizing_noise_model(
-            circuit, qv_1q_err, qv_2q_err
-        ),
-    )
+        simulator = AerSimulator(
+            method="statevector",
+        )
     result = simulator.run(circuit).result()
 
     heavy_counts = sum(
