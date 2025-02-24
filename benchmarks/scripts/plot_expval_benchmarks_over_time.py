@@ -2,6 +2,7 @@ import os
 import glob
 import pandas as pd
 import matplotlib.pyplot as plt
+from common import extract_compiler_versions
 
 # Step 1: Get the directory of the current script
 directory_of_this_file = os.path.dirname(os.path.abspath(__file__))
@@ -15,6 +16,10 @@ csv_files = glob.glob(os.path.join(results_folder, "expval_*.csv"))
 # Step 4: Iterate through all CSV files and load them into dataframes with date column
 dfs = []  # List to store dataframes
 for file in csv_files:
+    # Extract the version from the file header
+    with open(file, "r") as f:
+        header_line = f.readline().strip()
+        compiler_versions = extract_compiler_versions(header_line)
     # Extract the date from the filename (assuming the date is after 'expval_' and before '.csv')
     date_label = str(file).split("_")[1].split(".")[0]
 
@@ -23,6 +28,7 @@ for file in csv_files:
 
     # Add the extracted date as a new column in the dataframe
     df["date"] = date_label
+    df["compiler_version"] = df["compiler"].map(compiler_versions)
 
     # Append the dataframe to the list
     dfs.append(df)
@@ -33,9 +39,18 @@ df_all = pd.concat(dfs, ignore_index=True)
 # Convert the 'date' column to datetime
 df_all["date"] = pd.to_datetime(df_all["date"])
 
+unique_versions = sorted(df_all["compiler_version"].unique())
+dates = []
+for version in unique_versions:
+    df_versions = df_all[df_all["compiler_version"] == version]
+    earliest_date = sorted(df_versions["date"].unique())[0]
+    dates.append(earliest_date)
+
+df_filtered = df_all[df_all["date"].isin(dates)]
+
 # Step 6: Group by date and compiler, and calculate the average absolute error
 summary = (
-    df_all.groupby(["date", "compiler"])
+    df_filtered.groupby(["date", "compiler"])
     .agg(avg_absolute_error=("absolute_error", "mean"))
     .reset_index()
 )

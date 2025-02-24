@@ -1,10 +1,13 @@
-from common import annotate_and_adjust, adjust_axes_to_fit_labels
+from common import (
+    annotate_and_adjust,
+    adjust_axes_to_fit_labels,
+    extract_compiler_versions,
+)
 
 import glob
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
-import re
 
 
 ### Load data
@@ -14,11 +17,6 @@ results_folder = os.path.join(directory_of_this_file, "../results")
 csv_files = glob.glob(os.path.join(results_folder, "gates*.csv"))
 
 dataframes = []
-
-
-def extract_compiler_versions(header):
-    pattern = r"(\w+)=([\d\.]+)"
-    return dict(re.findall(pattern, header))
 
 
 print("Loading data files...")
@@ -77,17 +75,27 @@ colormap = plt.get_cmap("tab10", len(unique_compilers))
 color_map = {
     compiler: colormap(i) for i, compiler in enumerate(unique_compilers)
 }
+unique_versions = sorted(df_dates["compiler_version"].unique())
+dates = []
+for version in unique_versions:
+    df_versions = df_dates[df_dates["compiler_version"] == version]
+    earliest_date = sorted(df_versions["date"].unique())[0]
+    dates.append(earliest_date)
 
 fig, ax = plt.subplots(2, 1, figsize=(8, 8), sharex=False, dpi=150)
 # Rotate x labels on axes 0
 plt.setp(ax[0].xaxis.get_majorticklabels(), rotation=45)
 
 
+filtered_avg_compiled_ratio = avg_compiled_ratio[
+    avg_compiled_ratio["date"].isin(dates)
+]
+
 #### Plot Compiled ratio
 print("Plotting compiled ratio...")
 for compiler in unique_compilers:
-    compiler_data = avg_compiled_ratio[
-        avg_compiled_ratio["compiler"] == compiler
+    compiler_data = filtered_avg_compiled_ratio[
+        filtered_avg_compiled_ratio["compiler"] == compiler
     ]
     ax[0].plot(
         compiler_data["date"],
@@ -103,8 +111,10 @@ last_version_seen = {compiler: None for compiler in unique_compilers}
 
 previous_bboxes = []
 # Now iterate over each compiler entry and annotate if it's a new version, if so label it
-for date in avg_compiled_ratio["date"].unique():
-    date_data = avg_compiled_ratio[avg_compiled_ratio["date"] == date]
+for date in filtered_avg_compiled_ratio["date"].unique():
+    date_data = filtered_avg_compiled_ratio[
+        filtered_avg_compiled_ratio["date"] == date
+    ]
     # Sort date_data in order of compiled_ratio
     date_data = date_data.sort_values("compiled_ratio")
     # Now iterate over each compiler entry and annotate if it's a new version
@@ -146,13 +156,18 @@ ax[0].legend(title="Compiler", loc="upper center")
 #### Plot Compile time
 # Get runtime data only after we created GitHub Actions pipeline for standardization
 avg_compile_time = avg_compile_time[avg_compile_time["date"] >= "2024-12-16"]
+filtered_avg_compile_time = avg_compile_time[
+    avg_compile_time["date"].isin(dates)
+]
 
 previous_annotations = []
 last_version_seen = {compiler: None for compiler in unique_compilers}
 
 print("Plotting compile time...")
 for compiler in unique_compilers:
-    compiler_data = avg_compile_time[avg_compile_time["compiler"] == compiler]
+    compiler_data = filtered_avg_compile_time[
+        filtered_avg_compile_time["compiler"] == compiler
+    ]
     ax[1].plot(
         compiler_data["date"],
         compiler_data["compile_time"],
@@ -163,8 +178,8 @@ for compiler in unique_compilers:
     )
 
 # Add annotations for version changes
-for date in avg_compile_time["date"].unique():
-    date_data = avg_compile_time[avg_compile_time["date"] == date]
+for date in filtered_avg_compile_time["date"].unique():
+    date_data = filtered_avg_compile_time[avg_compile_time["date"] == date]
     # Sort date_data in order of compiled_ratio
     date_data = date_data.sort_values("compile_time")
     for _, row in date_data.iterrows():
