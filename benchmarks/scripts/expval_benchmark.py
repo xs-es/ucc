@@ -235,8 +235,37 @@ def simulate_expvals(
 
     else:
         density_matrix = simulate_density_matrix(compiled_circuit)
-        obs_str = "Z" * compiled.num_qubits
-        observable = Operator.from_label(obs_str)
+        if circuit_name == "qaoa":
+            observable = Operator(
+                np.diag(
+                    [
+                        1,
+                        -1,
+                        -1,
+                        -1,
+                        -1,
+                        1,
+                        -1,
+                        -1,
+                        -1,
+                        -1,
+                        1,
+                        -1,
+                        -1,
+                        -1,
+                        -1,
+                        1,
+                        -1,
+                        -1,
+                        -1,
+                        1,
+                    ]
+                )
+            )
+
+        else:
+            obs_str = "Z" * compiled_circuit.num_qubits
+            observable = Operator.from_label(obs_str)
 
         compiled_ev = np.real(density_matrix.expectation_value(observable))
 
