@@ -13,7 +13,8 @@ In the case of quantum volume circuits, we changed the expectation value metric 
 ZZZZZZZZZZZ observable to the heavy output probability.
 
 
-:heading-level: 3 Added
+Added
+^^^^^^^^^^^^^^^^^^^^^
 
 - Mention benchpress explicitly in License section. #241 [@jordandsullivan]
 - Add target gate set for cirq benchmarking #224 [@bachase]
@@ -22,7 +23,8 @@ ZZZZZZZZZZZ observable to the heavy output probability.
 - Add explicit Sphinx config in .readthedocs.yaml file #180 [@Misty-W]
 
 
-:heading-level: 3 Fixed
+Fixed
+^^^^^^^^^^^^^^^^^^^^^
 
 - Ensure benchmarking runs don't add gitignored files #247 [@bachase]
 - Pull latest compatible version of libraries when generating benchmark docker #244 [@bachase]
@@ -34,7 +36,8 @@ ZZZZZZZZZZZ observable to the heavy output probability.
 - Combine recent data files w/ incomplete benchmarks #207 [@Misty-W]
 
 
-:heading-level: 3 Changed
+Changed
+^^^^^^^^^^^^^^^^^^^^^
 
 - Update Install Poetry link to instructions for installation #257 [@jordandsullivan]
 - Upgrade dependencies #250 [@bachase]
@@ -50,7 +53,8 @@ ZZZZZZZZZZZ observable to the heavy output probability.
 - Update README.md #178 by willzeng
 
 
-:heading-level: 3 Removed
+Removed
+^^^^^^^^^^^^^^^^^^^^^
 
 - Remove custom transpilation passes #256 [@bachase]
 
@@ -63,7 +67,8 @@ Version 0.4.2 marks the first formal release to [PyPI](https://pypi.org/project/
 This release contains the default UCC compilation workflow, including circuit translation and optimization passes, pass management, and the user interface.
 It also encompasses benchmarking scripts and utilities, tests, documentation, and basic infrastructure.
 
-:heading-level: 3 Added
+Added
+^^^^^^^^^^^^^^^^^^^^^
 
 - PyPI release #165 [@Misty-W]
 - Add RTD for online documentation #164 [@natestemen]
@@ -109,7 +114,8 @@ It also encompasses benchmarking scripts and utilities, tests, documentation, an
 - Choose a license #1 [@jordandsullivan]
 
 
-:heading-level: 3 Fixed
+Fixed
+^^^^^^^^^^^^^^^^^^^^^
 
 - Install error due to openqasm versioning #154 [@Misty-W]
 - fix small_test.sh CLI command to deal with spaces in paths #152 [@willzeng]
@@ -124,7 +130,8 @@ It also encompasses benchmarking scripts and utilities, tests, documentation, an
 - Hidden rust dependency on install #74 [@Misty-W]
 
 
-:heading-level: 3 Removed
+Removed
+^^^^^^^^^^^^^^^^^^^^^
 
 - Remove innaccurate data for multi-q gates #86 [@jordandsullivan]
 - Remove QuantumTranslator references #23 [@jordandsullivan]
