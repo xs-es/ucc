@@ -8,7 +8,3 @@ This page details the publicly accessible functions available in ``ucc``.
 
 .. autoclass:: ucc.transpilers.ucc_defaults.UCCDefault1
     :members:
-
-.. automodule:: ucc.transpiler_passes
-    :members:
-    :imported-members:
