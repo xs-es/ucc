@@ -179,7 +179,9 @@ for compiler in unique_compilers:
 
 # Add annotations for version changes
 for date in filtered_avg_compile_time["date"].unique():
-    date_data = filtered_avg_compile_time[filtered_avg_compile_time["date"] == date]
+    date_data = filtered_avg_compile_time[
+        filtered_avg_compile_time["date"] == date
+    ]
     # Sort date_data in order of compiled_ratio
     date_data = date_data.sort_values("compile_time")
     for _, row in date_data.iterrows():
