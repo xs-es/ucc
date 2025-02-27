@@ -39,6 +39,8 @@ Fixed
 Changed
 ^^^^^^^^^^^^^^^^^^^^^
 
+- Run pytest before ruff linter checks #267 [@jordandsullivan]
+- Clarify poetry usage #265 [@bachase]
 - Update Install Poetry link to instructions for installation #257 [@jordandsullivan]
 - Upgrade dependencies #250 [@bachase]
 - Change QV error rates back to global variables #248 [@Misty-W]
