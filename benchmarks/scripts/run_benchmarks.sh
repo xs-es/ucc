@@ -23,7 +23,7 @@ QASM_FILES=(
 )
 
 # Define your list of compilers
-COMPILERS=("pytket-peep")
+COMPILERS=("ucc" "qiskit" "pytket-peep" "cirq")
 
 # Default parallelism 4 (can be overridden by a command line argument)
 PARALLELISM="${1:-4}"
@@ -50,7 +50,7 @@ done
 # that could impact timing results
 parallel -j "$PARALLELISM" ::: "${commands[@]}"
 
-# Not currently running expectation value benchmarks 
+# Not currently running expectation value benchmarks
 # QASM_EXPVAL_FILES=(
 #     "benchpress/qaoa_barabasi_albert_N10_3reps_basis_rz_rx_ry_cx.qasm"
 #     "benchpress/qv_N010_12345_basis_rz_rx_ry_cx.qasm"
