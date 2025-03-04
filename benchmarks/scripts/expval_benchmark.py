@@ -208,7 +208,15 @@ def estimate_heavy_output_prob(
 
 
 def generate_qaoa_observable(num_qubits):
-    obs_str = "H_p"
+    """Generates the problem Hamiltonian as the observable for the QAOA
+    benchmarking circuits, based on the binary encoding described in
+    Franz G. Fuchs, Herman Øie Kolden, Niels Henrik Aase, and Giorgio
+    Sartor "Efficient encoding of the weighted MAX k-CUT on a quantum computer
+    using QAOA". (2020) arXiv 2009.01095 (https://arxiv.org/abs/2009.01095).
+    The weights of the edges between vertices and of the resulting unitary
+    evolution come from the 10-vertex Barabasi-Albert graph in Fig 4(c)
+    of the paper.
+    """
     pauli_strings = []
     # Weights of edges between vertices and of the resulting unitary evolution
     weighted_edges = [
@@ -247,7 +255,7 @@ def generate_qaoa_observable(num_qubits):
         pauli_strings.append("".join(pauli_string))
     coeffs = [weight for _, _, weight in weighted_edges]
     observable = SparsePauliOp(pauli_strings, coeffs)
-    return observable, obs_str
+    return observable
 
 
 def simulate_expvals(
@@ -281,7 +289,8 @@ def simulate_expvals(
         if circuit_name == "qaoa_barabasi_albert":
             # observable is the problem Hamiltonian
             num_qubits = compiled_circuit.num_qubits
-            observable, obs_str = generate_qaoa_observable(num_qubits)
+            observable = generate_qaoa_observable(num_qubits)
+            obs_str = "".join(("H_p = ", str(observable.to_sparse_list())))
 
         else:
             obs_str = "Z" * compiled_circuit.num_qubits
