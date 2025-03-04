@@ -7,7 +7,7 @@ import cirq
 import pytket
 import qiskit
 from qiskit import qasm2
-from qiskit.quantum_info import Operator, Statevector
+from qiskit.quantum_info import Operator, Statevector, SparsePauliOp
 from qiskit_aer import AerSimulator
 import numpy as np
 
@@ -207,6 +207,50 @@ def estimate_heavy_output_prob(
     return hop
 
 
+def generate_qaoa_observable(num_qubits):
+    obs_str = "H_p"
+    pauli_strings = []
+
+    weighted_edges = [
+        (0, 1, 6.720),
+        (0, 2, 3.246),
+        (1, 2, 6.462),
+        (1, 3, 3.386),
+        (1, 5, 5.014),
+        (1, 6, 6.596),
+        (2, 3, 8.579),
+        (2, 4, 0.62),
+        (2, 5, 0.708),
+        (2, 6, 2.275),
+        (2, 7, 5.0),
+        (2, 8, 4.034),
+        (3, 4, 4.987),
+        (3, 6, 1.089),
+        (3, 9, 2.961),
+        (4, 5, 1.134),
+        (4, 6, 6.865),
+        (5, 6, 8.184),
+        (5, 7, 9.459),
+        (6, 7, 2.268),
+        (6, 8, 8.197),
+        (6, 9, 1.212),
+        (7, 9, 4.265),
+        (8, 9, 1.690),
+    ]
+    for i, j, _ in weighted_edges:
+        # Start with identity string
+        pauli_string = ["I"] * num_qubits
+        # Place Z operators on the chosen qubits
+        pauli_string[i] = "Z"
+        pauli_string[j] = "Z"
+        # Convert to PauliSumOp
+        pauli_strings.append("".join(pauli_string))
+    observable = SparsePauliOp(
+        pauli_strings, coeffs=list(zip(*weighted_edges))[2]
+    )
+    return observable, obs_str
+
+
 def simulate_expvals(
     uncompiled_circuit: qiskit.QuantumCircuit,
     compiled_circuit: qiskit.QuantumCircuit,
@@ -235,33 +279,10 @@ def simulate_expvals(
 
     else:
         density_matrix = simulate_density_matrix(compiled_circuit)
-        if circuit_name == "qaoa":
-            observable = Operator(
-                np.diag(
-                    [
-                        1,
-                        -1,
-                        -1,
-                        -1,
-                        -1,
-                        1,
-                        -1,
-                        -1,
-                        -1,
-                        -1,
-                        1,
-                        -1,
-                        -1,
-                        -1,
-                        -1,
-                        1,
-                        -1,
-                        -1,
-                        -1,
-                        1,
-                    ]
-                )
-            )
+        if circuit_name == "qaoa_barabasi_albert":
+            # observable is the problem Hamiltonian
+            num_qubits = compiled_circuit.num_qubits
+            observable, obs_str = generate_qaoa_observable(num_qubits)
 
         else:
             obs_str = "Z" * compiled_circuit.num_qubits
