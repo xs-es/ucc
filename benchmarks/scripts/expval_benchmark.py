@@ -210,7 +210,7 @@ def estimate_heavy_output_prob(
 def generate_qaoa_observable(num_qubits):
     obs_str = "H_p"
     pauli_strings = []
-
+    # Weights of edges between vertices and of the resulting unitary evolution
     weighted_edges = [
         (0, 1, 6.720),
         (0, 2, 3.246),
@@ -245,9 +245,8 @@ def generate_qaoa_observable(num_qubits):
         pauli_string[j] = "Z"
         # Convert to PauliSumOp
         pauli_strings.append("".join(pauli_string))
-    observable = SparsePauliOp(
-        pauli_strings, coeffs=list(zip(*weighted_edges))[2]
-    )
+    coeffs = [weight for _, _, weight in weighted_edges]
+    observable = SparsePauliOp(pauli_strings, coeffs)
     return observable, obs_str
 
 
