@@ -39,18 +39,20 @@ df_all = pd.concat(dfs, ignore_index=True)
 # Convert the 'date' column to datetime
 df_all["date"] = pd.to_datetime(df_all["date"])
 
-unique_versions = sorted(df_all["compiler_version"].unique())
-dates = []
-for version in unique_versions:
-    df_versions = df_all[df_all["compiler_version"] == version]
-    earliest_date = sorted(df_versions["date"].unique())[0]
-    dates.append(earliest_date)
+# Get the earliest date for each compiler version
+new_version_dates = df_all.groupby(["compiler", "compiler_version"])[
+    "date"
+].min()
 
-df_filtered = df_all[df_all["date"].isin(dates)]
+# Get all unique first occurrence dates
+unique_dates = new_version_dates.unique()
+
+# Filter on first occurrence of each compiler version based on the date
+df_all = df_all[df_all["date"].isin(unique_dates)]
 
 # Step 6: Group by date and compiler, and calculate the average absolute error
 summary = (
-    df_filtered.groupby(["date", "compiler"])
+    df_all.groupby(["date", "compiler"])
     .agg(avg_absolute_error=("absolute_error", "mean"))
     .reset_index()
 )

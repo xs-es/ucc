@@ -49,6 +49,20 @@ df_dates = df_dates[
     ~((df_dates["date"] >= "2025-02-07") & (df_dates["date"] < "2025-02-28"))
 ]
 
+# Ensure 'date' is in datetime format
+df_dates["date"] = pd.to_datetime(df_dates["date"])
+
+# Get the earliest date for each compiler version
+new_version_dates = df_dates.groupby(["compiler", "compiler_version"])[
+    "date"
+].min()
+
+# Get all unique first occurrence dates
+unique_dates = new_version_dates.unique()
+
+# Filter on first occurrence of each compiler version based on the date
+df_dates = df_dates[df_dates["date"].isin(unique_dates)]
+
 # Find the average compiled ratio for each compiler on each date
 avg_compiled_ratio = (
     df_dates.groupby(["compiler", "date", "compiler_version"])[
@@ -75,27 +89,17 @@ colormap = plt.get_cmap("tab10", len(unique_compilers))
 color_map = {
     compiler: colormap(i) for i, compiler in enumerate(unique_compilers)
 }
-unique_versions = sorted(df_dates["compiler_version"].unique())
-dates = []
-for version in unique_versions:
-    df_versions = df_dates[df_dates["compiler_version"] == version]
-    earliest_date = sorted(df_versions["date"].unique())[0]
-    dates.append(earliest_date)
 
 fig, ax = plt.subplots(2, 1, figsize=(8, 8), sharex=False, dpi=150)
 # Rotate x labels on axes 0
 plt.setp(ax[0].xaxis.get_majorticklabels(), rotation=45)
 
 
-filtered_avg_compiled_ratio = avg_compiled_ratio[
-    avg_compiled_ratio["date"].isin(dates)
-]
-
 #### Plot Compiled ratio
 print("Plotting compiled ratio...")
 for compiler in unique_compilers:
-    compiler_data = filtered_avg_compiled_ratio[
-        filtered_avg_compiled_ratio["compiler"] == compiler
+    compiler_data = avg_compiled_ratio[
+        avg_compiled_ratio["compiler"] == compiler
     ]
     ax[0].plot(
         compiler_data["date"],
@@ -111,10 +115,8 @@ last_version_seen = {compiler: None for compiler in unique_compilers}
 
 previous_bboxes = []
 # Now iterate over each compiler entry and annotate if it's a new version, if so label it
-for date in filtered_avg_compiled_ratio["date"].unique():
-    date_data = filtered_avg_compiled_ratio[
-        filtered_avg_compiled_ratio["date"] == date
-    ]
+for date in avg_compiled_ratio["date"].unique():
+    date_data = avg_compiled_ratio[avg_compiled_ratio["date"] == date]
     # Sort date_data in order of compiled_ratio
     date_data = date_data.sort_values("compiled_ratio")
     # Now iterate over each compiler entry and annotate if it's a new version
@@ -129,7 +131,8 @@ for date in filtered_avg_compiled_ratio["date"].unique():
             text = f"{compiler}={current_version}"
             xy = (row["date"], compiled_ratio)
             color = color_map[compiler]
-
+            renderer = fig.canvas.get_renderer()
+            previous_bboxes.append(ax[0].get_tightbbox(renderer))
             # Add the annotation and adjust for overlap
             annotate_and_adjust(
                 ax=ax[0],
@@ -156,18 +159,13 @@ ax[0].legend(title="Compiler", loc="upper center")
 #### Plot Compile time
 # Get runtime data only after we created GitHub Actions pipeline for standardization
 avg_compile_time = avg_compile_time[avg_compile_time["date"] >= "2024-12-16"]
-filtered_avg_compile_time = avg_compile_time[
-    avg_compile_time["date"].isin(dates)
-]
 
 previous_annotations = []
 last_version_seen = {compiler: None for compiler in unique_compilers}
 
 print("Plotting compile time...")
 for compiler in unique_compilers:
-    compiler_data = filtered_avg_compile_time[
-        filtered_avg_compile_time["compiler"] == compiler
-    ]
+    compiler_data = avg_compile_time[avg_compile_time["compiler"] == compiler]
     ax[1].plot(
         compiler_data["date"],
         compiler_data["compile_time"],
@@ -178,10 +176,8 @@ for compiler in unique_compilers:
     )
 
 # Add annotations for version changes
-for date in filtered_avg_compile_time["date"].unique():
-    date_data = filtered_avg_compile_time[
-        filtered_avg_compile_time["date"] == date
-    ]
+for date in avg_compile_time["date"].unique():
+    date_data = avg_compile_time[avg_compile_time["date"] == date]
     # Sort date_data in order of compiled_ratio
     date_data = date_data.sort_values("compile_time")
     for _, row in date_data.iterrows():
