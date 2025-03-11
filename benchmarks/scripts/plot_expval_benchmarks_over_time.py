@@ -2,18 +2,18 @@ import os
 import glob
 import pandas as pd
 import matplotlib.pyplot as plt
-from common import extract_compiler_versions
+from common import annotate_and_adjust, extract_compiler_versions
 
-# Step 1: Get the directory of the current script
+# Get the directory of the current script
 directory_of_this_file = os.path.dirname(os.path.abspath(__file__))
 
-# Step 2: Construct the correct path to the results folder
+# Construct the correct path to the results folder
 results_folder = os.path.join(directory_of_this_file, "../results")
 
-# Step 3: Use glob to find all CSV files in the results folder
+# Use glob to find all CSV files in the results folder
 csv_files = glob.glob(os.path.join(results_folder, "expval_*.csv"))
 
-# Step 4: Iterate through all CSV files and load them into dataframes with date column
+# Iterate through all CSV files and load them into dataframes with date column
 dfs = []  # List to store dataframes
 for file in csv_files:
     # Extract the version from the file header
@@ -33,7 +33,7 @@ for file in csv_files:
     # Append the dataframe to the list
     dfs.append(df)
 
-# Step 5: Concatenate all dataframes into one large dataframe
+# Concatenate all dataframes into one large dataframe
 df_all = pd.concat(dfs, ignore_index=True)
 
 # Convert the 'date' column to datetime
@@ -50,14 +50,14 @@ unique_dates = new_version_dates.unique()
 # Filter on first occurrence of each compiler version based on the date
 df_all = df_all[df_all["date"].isin(unique_dates)]
 
-# Step 6: Group by date and compiler, and calculate the average absolute error
+# Group by date and compiler, and calculate the average absolute error
 summary = (
-    df_all.groupby(["date", "compiler"])
+    df_all.groupby(["date", "compiler", "compiler_version"])
     .agg(avg_absolute_error=("absolute_error", "mean"))
     .reset_index()
 )
 
-# Step 7: Set up the figure
+# Set up the figure
 fig, ax = plt.subplots(figsize=(12, 6))
 
 # Set color map for different compilers
@@ -67,7 +67,8 @@ color_map = {
     compiler: colormap(i) for i, compiler in enumerate(unique_compilers)
 }
 
-# Step 8: Plot average absolute error over time
+
+# Plot average absolute error over time
 for compiler in unique_compilers:
     compiler_data = summary[summary["compiler"] == compiler]
 
@@ -79,7 +80,54 @@ for compiler in unique_compilers:
         marker="o",
     )
 
-# Step 9: Customize plot
+# Customize plot
+last_version_seen = {compiler: None for compiler in unique_compilers}
+
+# Find the latest version for each package
+latest_versions = summary.groupby("compiler")["compiler_version"].max()
+# Filter to keep only rows with the latest version
+avg_absolute_error_latest_versions = summary[
+    summary["compiler_version"].isin(latest_versions)
+]
+#  Find the first appearance date of each latest version
+first_appearance_dates = (
+    avg_absolute_error_latest_versions.groupby(
+        ["compiler", "compiler_version", "avg_absolute_error"]
+    )["date"]
+    .min()
+    .reset_index()
+)
+
+previous_bboxes = []
+
+for _, row in first_appearance_dates.iterrows():
+    # Get the version for this date
+    current_version = row["compiler_version"]
+    compiler = row["compiler"]
+    avg_absolute_error = row["avg_absolute_error"]
+
+    if current_version != last_version_seen[compiler]:
+        text = f"{compiler}={current_version}"
+        xy = xy = (row["date"], avg_absolute_error)
+        color = color_map[compiler]
+
+        # Add the annotation and adjust for overlap
+        annotate_and_adjust(
+            ax=ax,
+            text=text,
+            xy=xy,
+            color=color,
+            previous_bboxes=previous_bboxes,
+            offset=(0, 20),  # Initial offset
+            increment=2,  # Vertical adjustment step
+            max_attempts=15,
+        )
+        # plt.pause(0.1)
+        # Update the last seen version for this compiler
+        last_version_seen[compiler] = current_version
+
+
+# Customize plot
 ax.set_title("Average Absolute Error Over Time")
 ax.set_xlabel("Date")
 ax.set_ylabel("Average Absolute Error")
