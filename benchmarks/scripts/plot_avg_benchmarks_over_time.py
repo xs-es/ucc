@@ -110,48 +110,43 @@ for compiler in unique_compilers:
         color=color_map[compiler],
     )
 
+# Keep track of last compiler version seen over time to track version changes
+last_version_seen = {compiler: None for compiler in unique_compilers}
 
 previous_bboxes = []
+# Now iterate over each compiler entry and annotate if it's a new version, if so label it
+for date in avg_compiled_ratio["date"].unique():
+    date_data = avg_compiled_ratio[avg_compiled_ratio["date"] == date]
+    # Sort date_data in order of compiled_ratio
+    date_data = date_data.sort_values("compiled_ratio")
+    # Now iterate over each compiler entry and annotate if it's a new version
+    for _, row in date_data.iterrows():
+        # Get the version for this date
+        current_version = row["compiler_version"]
+        compiler = row["compiler"]
+        compiled_ratio = row["compiled_ratio"]
 
-# Find the latest version for each package
-latest_versions = avg_compiled_ratio.groupby("compiler")[
-    "compiler_version"
-].max()
-# Filter to keep only rows with the latest version
-avg_compiled_ratio_latest_versions = avg_compiled_ratio[
-    avg_compiled_ratio["compiler_version"].isin(latest_versions)
-]
-#  Find the first appearance date of each latest version
-first_appearance_dates = (
-    avg_compiled_ratio_latest_versions.groupby(
-        ["compiler", "compiler_version", "compiled_ratio"]
-    )["date"]
-    .min()
-    .reset_index()
-)
-
-
-for _, row in first_appearance_dates.iterrows():
-    # Get the version for this date
-    current_version = row["compiler_version"]
-    compiler = row["compiler"]
-    compiled_ratio = row["compiled_ratio"]
-
-    text = f"{compiler}={current_version}"
-    xy = (row["date"], compiled_ratio)
-    color = color_map[compiler]
-    # Add the annotation and adjust for overlap
-    annotate_and_adjust(
-        ax=ax[0],
-        text=text,
-        xy=xy,
-        color=color,
-        previous_bboxes=previous_bboxes,
-        offset=(0, 20),  # Initial offset
-        increment=2,  # Vertical adjustment step
-        max_attempts=15,
-    )
-    # plt.pause(0.1)
+        # Check if the version has changed
+        if current_version != last_version_seen[compiler]:
+            text = f"{current_version}"
+            xy = (row["date"], compiled_ratio)
+            color = color_map[compiler]
+            renderer = fig.canvas.get_renderer()
+            previous_bboxes.append(ax[0].get_tightbbox(renderer))
+            # Add the annotation and adjust for overlap
+            annotate_and_adjust(
+                ax=ax[0],
+                text=text,
+                xy=xy,
+                color=color,
+                previous_bboxes=previous_bboxes,
+                offset=(0, 20),  # Initial offset
+                increment=2,  # Vertical adjustment step
+                max_attempts=15,
+            )
+            # plt.pause(0.1)
+            # Update the last seen version for this compiler
+            last_version_seen[compiler] = current_version
 
 # Set y axis range to be slightly larger than data range
 adjust_axes_to_fit_labels(ax[0], y_scale=[1.1, 1.3])
@@ -181,45 +176,37 @@ for compiler in unique_compilers:
     )
 
 # Add annotations for version changes
-latest_versions = avg_compile_time.groupby("compiler")[
-    "compiler_version"
-].max()
-avg_compile_time_latest_versions = avg_compile_time[
-    avg_compile_time["compiler_version"].isin(latest_versions)
-]
-first_appearance_dates = (
-    avg_compile_time_latest_versions.groupby(
-        ["compiler", "compiler_version", "compile_time"]
-    )["date"]
-    .min()
-    .reset_index()
-)
-for _, row in first_appearance_dates.iterrows():
-    # Get the version for this date
-    current_version = row["compiler_version"]
-    compiler = row["compiler"]
-    compile_time = row["compile_time"]
+for date in avg_compile_time["date"].unique():
+    date_data = avg_compile_time[avg_compile_time["date"] == date]
+    # Sort date_data in order of compiled_ratio
+    date_data = date_data.sort_values("compile_time")
+    for _, row in date_data.iterrows():
+        # print(row, '\n')
+        # Get the version for this date
+        current_version = row["compiler_version"]
+        compiler = row["compiler"]
+        compile_time = row["compile_time"]
 
-    # Check if the version has changed
-    if current_version != last_version_seen[compiler]:
-        text = f"{compiler}={current_version}"
-        xy = (row["date"], compile_time)
-        color = color_map[compiler]
+        # Check if the version has changed
+        if current_version != last_version_seen[compiler]:
+            text = f"{current_version}"
+            xy = (row["date"], compile_time)
+            color = color_map[compiler]
 
-        # Add the annotation and adjust for overlap
-        annotate_and_adjust(
-            ax=ax[1],
-            text=text,
-            xy=xy,
-            color=color,
-            previous_bboxes=previous_bboxes,
-            offset=(0, 20),  # Initial offset
-            increment=2,  # Vertical adjustment step
-            max_attempts=15,
-        )
-        # plt.pause(0.1)
-        # Update the last seen version for this compiler
-        last_version_seen[compiler] = current_version
+            # Add the annotation and adjust for overlap
+            annotate_and_adjust(
+                ax=ax[1],
+                text=text,
+                xy=xy,
+                color=color,
+                previous_bboxes=previous_bboxes,
+                offset=(0, 20),  # Initial offset
+                increment=2,  # Vertical adjustment step
+                max_attempts=15,
+            )
+            # plt.pause(0.1)
+            # Update the last seen version for this compiler
+            last_version_seen[compiler] = current_version
 
 ax[1].set_title("Average Compile Time over Time")
 ax[1].set_ylabel("Compile Time (s)")

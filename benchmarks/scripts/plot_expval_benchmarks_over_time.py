@@ -100,15 +100,15 @@ first_appearance_dates = (
 
 previous_bboxes = []
 
-for _, row in first_appearance_dates.iterrows():
+for _, row in summary.iterrows():
     # Get the version for this date
     current_version = row["compiler_version"]
     compiler = row["compiler"]
     avg_absolute_error = row["avg_absolute_error"]
 
     if current_version != last_version_seen[compiler]:
-        text = f"{compiler}={current_version}"
-        xy = xy = (row["date"], avg_absolute_error)
+        text = f"{current_version}"
+        xy = (row["date"], avg_absolute_error)
         color = color_map[compiler]
 
         # Add the annotation and adjust for overlap
