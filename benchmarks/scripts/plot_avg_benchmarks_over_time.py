@@ -3,7 +3,7 @@ from common import (
     adjust_axes_to_fit_labels,
     extract_compiler_versions,
 )
-
+from pkg_resources import parse_version
 import glob
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -36,6 +36,8 @@ for file in csv_files:
         # Remove pytket from compiler_versions for this datafile
         compiler_versions.pop("pytket")
     df["compiler_version"] = df["compiler"].map(compiler_versions)
+    # Scrub semver string of any extraneous period at end
+    df["compiler_version"] = df["compiler_version"].str.rstrip(".")
 
     dataframes.append(df)
 
@@ -47,6 +49,7 @@ df_dates = df_dates[df_dates["compiler"] != "pytket"]
 # Remove data from dates between 2025-02-07 through 2025-02-28 while #251 was being fixed
 df_dates = df_dates[
     ~((df_dates["date"] >= "2025-02-07") & (df_dates["date"] < "2025-02-28"))
+    & (df_dates["date"] != "2025-03-05")
 ]
 
 # Ensure 'date' is in datetime format
@@ -72,7 +75,13 @@ avg_compiled_ratio = (
     .reset_index()
     .sort_values("date")
 )
-# Sort the dataframe by package, date, and version
+# Sort the dataframe by package, date, and parsed version
+avg_compiled_ratio["parsed_version"] = avg_compiled_ratio[
+    "compiler_version"
+].apply(parse_version)
+avg_compiled_ratio = avg_compiled_ratio.sort_values(
+    by=["date", "compiler", "parsed_version"], ascending=[True, True, True]
+)
 avg_compiled_ratio = avg_compiled_ratio.sort_values(
     by=["date", "compiler", "compiler_version"], ascending=[True, True, True]
 )
@@ -88,9 +97,13 @@ avg_compile_time = (
     .reset_index()
     .sort_values("date")
 )
-# Sort the dataframe by package, date, and version
+
+# Sort the dataframe by package, date, and parsed version
+avg_compile_time["parsed_version"] = avg_compile_time[
+    "compiler_version"
+].apply(parse_version)
 avg_compile_time = avg_compile_time.sort_values(
-    by=["date", "compiler", "compiler_version"], ascending=[True, True, True]
+    by=["date", "compiler", "parsed_version"], ascending=[True, True, True]
 )
 # Keep only the highest version per (date, package)
 avg_compile_time = avg_compile_time.drop_duplicates(
@@ -142,7 +155,7 @@ for date in avg_compiled_ratio["date"].unique():
         compiled_ratio = row["compiled_ratio"]
 
         # Check if the version has changed
-        if current_version != last_version_seen[compiler]:
+        if row["parsed_version"] != last_version_seen[compiler]:
             text = f"{current_version}"
             xy = (row["date"], compiled_ratio)
             color = color_map[compiler]
@@ -159,7 +172,7 @@ for date in avg_compiled_ratio["date"].unique():
             )
             # plt.pause(0.1)
             # Update the last seen version for this compiler
-            last_version_seen[compiler] = current_version
+            last_version_seen[compiler] = row["parsed_version"]
 
 # Set y axis range to be slightly larger than data range
 adjust_axes_to_fit_labels(ax[0], y_scale=[1.1, 1.3])
