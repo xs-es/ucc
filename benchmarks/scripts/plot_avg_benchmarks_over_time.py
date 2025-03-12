@@ -72,6 +72,14 @@ avg_compiled_ratio = (
     .reset_index()
     .sort_values("date")
 )
+# Sort the dataframe by package, date, and version
+avg_compiled_ratio = avg_compiled_ratio.sort_values(
+    by=["date", "compiler", "compiler_version"], ascending=[True, True, True]
+)
+# Keep only the highest version per (date, package)
+avg_compiled_ratio = avg_compiled_ratio.drop_duplicates(
+    subset=["date", "compiler"], keep="last"
+)
 
 # Find the average compile time for each compiler on each date
 avg_compile_time = (
@@ -80,7 +88,14 @@ avg_compile_time = (
     .reset_index()
     .sort_values("date")
 )
-
+# Sort the dataframe by package, date, and version
+avg_compile_time = avg_compile_time.sort_values(
+    by=["date", "compiler", "compiler_version"], ascending=[True, True, True]
+)
+# Keep only the highest version per (date, package)
+avg_compile_time = avg_compile_time.drop_duplicates(
+    subset=["date", "compiler"], keep="last"
+)
 
 ###### Plotting
 # Ensure colors are consistently assigned to each compiler
@@ -131,8 +146,6 @@ for date in avg_compiled_ratio["date"].unique():
             text = f"{current_version}"
             xy = (row["date"], compiled_ratio)
             color = color_map[compiler]
-            renderer = fig.canvas.get_renderer()
-            previous_bboxes.append(ax[0].get_tightbbox(renderer))
             # Add the annotation and adjust for overlap
             annotate_and_adjust(
                 ax=ax[0],

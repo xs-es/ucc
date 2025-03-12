@@ -83,20 +83,6 @@ for compiler in unique_compilers:
 # Customize plot
 last_version_seen = {compiler: None for compiler in unique_compilers}
 
-# Find the latest version for each package
-latest_versions = summary.groupby("compiler")["compiler_version"].max()
-# Filter to keep only rows with the latest version
-avg_absolute_error_latest_versions = summary[
-    summary["compiler_version"].isin(latest_versions)
-]
-#  Find the first appearance date of each latest version
-first_appearance_dates = (
-    avg_absolute_error_latest_versions.groupby(
-        ["compiler", "compiler_version", "avg_absolute_error"]
-    )["date"]
-    .min()
-    .reset_index()
-)
 
 previous_bboxes = []
 
