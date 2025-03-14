@@ -36,6 +36,7 @@ for file in csv_files:
         # Remove pytket from compiler_versions for this datafile
         compiler_versions.pop("pytket")
     df["compiler_version"] = df["compiler"].map(compiler_versions)
+    df["compiler"] = df["compiler"].replace("qiskit", "qiskit-default")
     # Scrub semver string of any extraneous period at end
     df["compiler_version"] = df["compiler_version"].str.rstrip(".")
 
@@ -166,9 +167,9 @@ for date in avg_compiled_ratio["date"].unique():
                 xy=xy,
                 color=color,
                 previous_bboxes=previous_bboxes,
-                offset=(0, 20),  # Initial offset
+                offset=(0, 17),  # Initial offset
                 increment=2,  # Vertical adjustment step
-                max_attempts=15,
+                max_attempts=20,
             )
             # plt.pause(0.1)
             # Update the last seen version for this compiler
@@ -226,7 +227,7 @@ for date in avg_compile_time["date"].unique():
                 xy=xy,
                 color=color,
                 previous_bboxes=previous_bboxes,
-                offset=(0, 20),  # Initial offset
+                offset=(0, 30),  # Initial offset
                 increment=2,  # Vertical adjustment step
                 max_attempts=15,
             )
