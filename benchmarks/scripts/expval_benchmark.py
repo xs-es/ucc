@@ -255,8 +255,23 @@ def generate_qaoa_observable(num_qubits):
         # Convert to PauliSumOp
         pauli_strings.append("".join(pauli_string))
     coeffs = [weight for _, _, weight in weighted_edges]
-    observable = SparsePauliOp(pauli_strings, coeffs)
-    return observable
+    qaoa_observable = SparsePauliOp(pauli_strings, coeffs)
+    return qaoa_observable
+
+
+def generate_qcnn_observable(num_qubits):
+    """Generates the observable for the QCNN benchmarking circuits, based on
+    the observable defined in Iris Cong, Soonwon Choi, and Mikhail D. Lukin
+    "Quantum Convolutional Neural Networks". (2019) arXiv 1810.03787
+    (https://arxiv.org/abs/1810.03787).
+    """
+    pauli_strings = []
+    for i in range(num_qubits - 2):
+        pauli_string = ["I"] * num_qubits
+        pauli_string[i : i + 3] = ["Z", "X", "Z"]
+        pauli_strings.append("".join(pauli_string))
+    qcnn_observable = SparsePauliOp(pauli_strings)
+    return qcnn_observable
 
 
 def simulate_expvals(
@@ -292,7 +307,10 @@ def simulate_expvals(
             num_qubits = compiled_circuit.num_qubits
             observable = generate_qaoa_observable(num_qubits)
             obs_str = "".join(("H_p = ", str(observable.to_sparse_list())))
-
+        elif circuit_name == "qcnn":
+            num_qubits = compiled_circuit.num_qubits
+            observable = generate_qcnn_observable(num_qubits)
+            obs_str = str(observable.to_sparse_list())
         else:
             obs_str = "Z" * compiled_circuit.num_qubits
             observable = Operator.from_label(obs_str)
