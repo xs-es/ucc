@@ -21,8 +21,9 @@ from common import (
 )
 from ucc import compile as ucc_compile
 
-SINGLE_QUBIT_ERROR_RATE = 0.01
-TWO_QUBIT_ERROR_RATE = 0.03
+# error rates representative of current hardware as of Mar 24, 2025
+SINGLE_QUBIT_ERROR_RATE = 0.00052
+TWO_QUBIT_ERROR_RATE = 0.0071
 
 
 def compile_for_simulation(
