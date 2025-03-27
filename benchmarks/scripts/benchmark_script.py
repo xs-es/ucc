@@ -9,7 +9,9 @@ from common import (
     get_native_rep,
 )
 
-parser = argparse.ArgumentParser(description="Benchmarking script for quantum compilers.")
+parser = argparse.ArgumentParser(
+    description="Benchmarking script for quantum compilers."
+)
 
 # Define arguments
 parser.add_argument("qasm_file", type=str, help="Path to the QASM file.")
