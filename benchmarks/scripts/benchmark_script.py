@@ -25,13 +25,6 @@ qasm_file = args.qasm_file
 compiler_alias = args.compiler
 results_folder = args.results_folder
 
-# Ensure both QASM file and compiler are provided as arguments
-if len(args) < 4:
-    print(
-        "Usage: python3 benchmark_script.py <qasm_file> <compiler> <results_folder>"
-    )
-    sys.exit(1)
-
 # Read the QASM file
 with open(qasm_file, "r") as file:
     print(f"Compiling {qasm_file} using {compiler_alias}")
