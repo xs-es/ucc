@@ -1,5 +1,7 @@
 # benchmark_script.py
 import sys
+import argparse
+
 from common import (
     log_performance,
     save_results,
@@ -7,17 +9,26 @@ from common import (
     get_native_rep,
 )
 
+parser = argparse.ArgumentParser(description="Benchmarking script for quantum compilers.")
+
+# Define arguments
+parser.add_argument("qasm_file", type=str, help="Path to the QASM file.")
+parser.add_argument("compiler", type=str, help="Compiler alias to use.")
+parser.add_argument("results_folder", type=str, help="Folder to save results.")
+
+args = parser.parse_args()
+
+# Get the QASM file, compiler, and results folder passed as command-line arguments
+qasm_file = args.qasm_file
+compiler_alias = args.compiler
+results_folder = args.results_folder
+
 # Ensure both QASM file and compiler are provided as arguments
-if len(sys.argv) < 4:
+if len(args) < 4:
     print(
         "Usage: python3 benchmark_script.py <qasm_file> <compiler> <results_folder>"
     )
     sys.exit(1)
-
-# Get the QASM file, compiler, and results folder passed as command-line arguments
-qasm_file = sys.argv[1]
-compiler_alias = sys.argv[2]
-results_folder = sys.argv[3]  # New argument for results folder
 
 # Read the QASM file
 with open(qasm_file, "r") as file:
