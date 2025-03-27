@@ -1,5 +1,4 @@
 # benchmark_script.py
-import sys
 import argparse
 
 from common import (
