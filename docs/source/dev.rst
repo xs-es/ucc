@@ -30,7 +30,7 @@ To release a new version of ``ucc`` on GitHub, follow the steps below.
         git push origin v1.1.0
 
 5. **Draft a New Release on GitHub:**
-    - Navigate to https://github.com/unitaryfund/ucc/releases to create a new release.
+    - Navigate to https://github.com/unitaryfoundation/ucc/releases to create a new release.
     - Select the newly created tag.
     - Fill in the release title and description, and copy the changelog entry for the description.
     - Publish the release.

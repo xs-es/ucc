@@ -5,8 +5,8 @@ Thank you for your interest in contributing to UCC!
 All contributions to this project are welcome, and they are greatly appreciated; every little bit helps.
 The most common ways to contribute here are
 
-1. opening an `issue <https://github.com/unitaryfund/ucc/issues/new/choose>`_ to report a bug or propose a new feature, or ask a question, and
-2. opening a `pull request <https://github.com/unitaryfund/ucc/pulls>`_ to fix a bug, or implement a desired feature.
+1. opening an `issue <https://github.com/unitaryfoundation/ucc/issues/new/choose>`_ to report a bug or propose a new feature, or ask a question, and
+2. opening a `pull request <https://github.com/unitaryfoundation/ucc/pulls>`_ to fix a bug, or implement a desired feature.
 
 The rest of this document describes the technical details of getting set up to develop, and make your first contribution to ucc.
 
@@ -18,7 +18,7 @@ After installing poetry, run the following commands to clone the repository, cre
 
 .. code:: bash
 
-    git clone https://github.com/unitaryfund/ucc.git
+    git clone https://github.com/unitaryfoundation/ucc.git
     cd ucc
     poetry install
 
@@ -96,7 +96,7 @@ For more detailed information and examples, refer to the `Qiskit documentation <
 4. Clear Acceptance Criteria for Incorporation into default transpiler
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For the new pass to be incorporated into `the default compiler <https://github.com/unitaryfund/ucc/blob/main/ucc/transpilers/ucc_defaults.py>`_, it must meet the following criteria:
+For the new pass to be incorporated into `the default compiler <https://github.com/unitaryfoundation/ucc/blob/main/ucc/transpilers/ucc_defaults.py>`_, it must meet the following criteria:
 
 #. Reduction in compiled 2-qubit gate count
     * Demonstrate a reduction in the number of 2-qubit gates.
