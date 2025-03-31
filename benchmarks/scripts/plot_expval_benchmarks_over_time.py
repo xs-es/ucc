@@ -53,8 +53,9 @@ df_all = df_all[df_all["date"].isin(unique_dates)]
 
 def normalize_relative_error(row):
     """Calculate the relative error and normalize it to avoid division by zero."""
-    relative_error = abs(row["ideal_expval"] - row["expval"]) / max(
-        abs(row["ideal_expval"]), 0.1
+    epsilon = 1e-8
+    relative_error = abs(row["ideal_expval"] - row["expval"]) / (
+        abs(row["ideal_expval"]) + epsilon
     )
     return relative_error
 
