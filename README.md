@@ -1,6 +1,6 @@
 ## `ucc`: Unitary Compiler Collection
 
-[![Repository](https://img.shields.io/badge/GitHub-5C5C5C.svg?logo=github)](https://github.com/unitaryfund/ucc)
+[![Repository](https://img.shields.io/badge/GitHub-5C5C5C.svg?logo=github)](https://github.com/unitaryfoundation/ucc)
 [![PyPI version](https://badge.fury.io/py/ucc.svg)](https://badge.fury.io/py/ucc)
 [![Downloads](https://static.pepy.tech/personalized-badge/ucc?period=total&units=international_system&left_color=black&right_color=green&left_text=Downloads)](https://www.pepy.tech/projects/ucc)
 [![Unitary Foundation](https://img.shields.io/badge/Supported%20By-Unitary%20Foundation-FFFF00.svg)](https://unitary.foundation)
@@ -16,7 +16,7 @@ By leveraging [qBraid](https://github.com/qBraid/qBraid), UCC interfaces automat
 **Want to know more?**
 - Check out our [documentation](https://ucc.readthedocs.io/en/latest/), which you can build locally after installation by running `make html` in `ucc/docs/source`.
 - Read the [launch announcement](https://unitary.foundation/posts/2025_ucc_launch_blog) to learn more on the current state of UCC, its capabilities and future direction.
-- For code, repo, or theory questions, especially those requiring more detailed responses, submit a [Discussion](https://github.com/unitaryfund/ucc/discussions).
+- For code, repo, or theory questions, especially those requiring more detailed responses, submit a [Discussion](https://github.com/unitaryfoundation/ucc/discussions).
 - For casual or time sensitive questions, chat with us on [Discord](http://discord.unitary.foundation).
 
 ## Quickstart
@@ -32,7 +32,7 @@ pip install ucc
 If developing or running benchmarks, please install [Poetry](https://github.com/python-poetry/install.python-poetry.org), which is used to managed dependencies. Then setup a dev version via:
 
 ```bash
-git clone https://github.com/unitaryfund/ucc.git
+git clone https://github.com/unitaryfoundation/ucc.git
 cd ucc
 poetry install
 ```
@@ -75,14 +75,14 @@ def test_cirq_compile():
 <!-- comment used to strip this section from being added to the docs build-->
 ## How does UCC stack up?
 
-UCC seeks to provide an end-to-end compiler that works well for the majority of the users out of the box. Today, this is achieved by running a particular subset of [Qiskit](https://github.com/Qiskit/qiskit) transpiler passes. 
+UCC seeks to provide an end-to-end compiler that works well for the majority of the users out of the box. Today, this is achieved by running a particular subset of [Qiskit](https://github.com/Qiskit/qiskit) transpiler passes.
 To ensure we continue to improve performance and meet user needs, we regularly run benchmarks comparing UCC against the latest versions of leading quantum compiler frameworks across a range of circuits. Here’s the latest:
 ![alt text](benchmarks/latest_compiler_benchmarks_by_circuit.png)
 
 And here you can see progress over time, with new package versions labeled for each compiler:
 ![alt text](benchmarks/avg_compiler_benchmarks_over_time.png)
 where pytket-peep indicates the `FullPeepHoleOptimize` function of PyTKET. Note that the compile times before 2024-12-10 may have been run on different classical compute instances, so their runtime is not reported here, but you can find this data in benchmarks/results.
-After 2024-12-10, all data present in this plot is on the same compute instance using our [ucc-benchmarks](https://github.com/unitaryfund/ucc/blob/main/.github/workflows/ucc-benchmarks.yml) GitHub Actions workflow.
+After 2024-12-10, all data present in this plot is on the same compute instance using our [ucc-benchmarks](https://github.com/unitaryfoundation/ucc/blob/main/.github/workflows/ucc-benchmarks.yml) GitHub Actions workflow.
 
 To learn more about running these benchmarks, the overall benchmark philosophy, or how to contribute to improving the benchmarking methodology, check out the [benchmarking section](https://ucc.readthedocs.io/en/latest/benchmarking.html) in the docs.
 <!-- end-how-does-ucc-stack-up -->
@@ -94,7 +94,7 @@ Your contributions help improve the tool for everyone!
 There are many ways you can contribute, such as
 
 - **Create a Custom Compiler Pass**: Learn how in the [User Guide](https://ucc.readthedocs.io/en/latest/user_guide.html)
-- **Submit a bug report or feature request**: Submit a bug report or feature request [on GitHub](https://github.com/unitaryfund/ucc/issues/new/choose).
+- **Submit a bug report or feature request**: Submit a bug report or feature request [on GitHub](https://github.com/unitaryfoundation/ucc/issues/new/choose).
 - **Contribute Code**: Follow the [Contribution Guide](https://ucc.readthedocs.io/en/latest/contributing.html) to submit new passes and improvements.
 
 If you have questions about contributing please ask on the [Unitary Foundation Discord](http://discord.unitary.foundation).

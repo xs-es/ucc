@@ -10,7 +10,7 @@ authors = [
 ]
 license = "GPL-3.0"
 readme = "README.md"
-repository = "https://github.com/unitaryfund/ucc"
+repository = "https://github.com/unitaryfoundation/ucc"
 requires-python = ">=3.12,<4"
 packages = [{ include = "ucc" }]
 dependencies = [

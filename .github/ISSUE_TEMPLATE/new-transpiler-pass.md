@@ -7,8 +7,8 @@ assignees: ''
 
 ---
 
-Hooray, glad you're interested in proposing a new technique to add to [UCC's transpiler](https://github.com/unitaryfund/ucc/blob/main/ucc/transpilers/ucc_defaults.py)!
-Please fill out the following template and we will triage and get back to you with next steps. 
+Hooray, glad you're interested in proposing a new technique to add to [UCC's transpiler](https://github.com/unitaryfoundation/ucc/blob/main/ucc/transpilers/ucc_defaults.py)!
+Please fill out the following template and we will triage and get back to you with next steps.
 
 1. How the technique works:
     a. In a written abstract without too much jargon, citing the source of the technique
