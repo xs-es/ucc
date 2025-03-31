@@ -50,10 +50,24 @@ unique_dates = new_version_dates.unique()
 # Filter on first occurrence of each compiler version based on the date
 df_all = df_all[df_all["date"].isin(unique_dates)]
 
-# Group by date and compiler, and calculate the average absolute error
+
+def normalize_relative_error(row):
+    """Calculate the relative error and normalize it to avoid division by zero."""
+    epsilon = 1e-8
+    relative_error = abs(row["ideal_expval"] - row["expval"]) / (
+        abs(row["ideal_expval"]) + epsilon
+    )
+    return relative_error
+
+
+# Group by date and compiler, and calculate the average relative error
+df_all["normalized_relative_error"] = df_all.apply(
+    normalize_relative_error, axis=1
+)
+
 summary = (
     df_all.groupby(["date", "compiler", "compiler_version"])
-    .agg(avg_absolute_error=("absolute_error", "mean"))
+    .agg(avg_relative_error=("normalized_relative_error", "mean"))
     .reset_index()
 )
 
@@ -68,13 +82,13 @@ color_map = {
 }
 
 
-# Plot average absolute error over time
+# Plot average relative error over time
 for compiler in unique_compilers:
     compiler_data = summary[summary["compiler"] == compiler]
 
     ax.plot(
         compiler_data["date"],
-        compiler_data["avg_absolute_error"],
+        compiler_data["avg_relative_error"],
         label=compiler,
         color=color_map[compiler],
         marker="o",
@@ -90,11 +104,11 @@ for _, row in summary.iterrows():
     # Get the version for this date
     current_version = row["compiler_version"]
     compiler = row["compiler"]
-    avg_absolute_error = row["avg_absolute_error"]
+    avg_relative_error = row["avg_relative_error"]
 
     if current_version != last_version_seen[compiler]:
         text = f"{current_version}"
-        xy = (row["date"], avg_absolute_error)
+        xy = (row["date"], avg_relative_error)
         color = color_map[compiler]
 
         # Add the annotation and adjust for overlap
@@ -114,16 +128,16 @@ for _, row in summary.iterrows():
 
 
 # Customize plot
-ax.set_title("Average Absolute Error Over Time")
+ax.set_title("Average Relative Error Over Time")
 ax.set_xlabel("Date")
-ax.set_ylabel("Average Absolute Error")
+ax.set_ylabel("Average Relative Error")
 ax.grid(True)
 ax.legend(title="Compiler")
 
 # Adjust layout and save the figure
 plt.tight_layout()
 filename = os.path.join(
-    directory_of_this_file, "../average_absolute_error_over_time.png"
+    directory_of_this_file, "../average_relative_error_over_time.png"
 )
 print(f"\n Saving plot to {filename}")
 fig.savefig(filename)
