@@ -44,14 +44,15 @@ Publishing a new version of UCC to PyPI (maintainers only)
 1. Follow the steps above for creating a new release.
 2. The deployment to TestPyPI should trigger automatically (only maintainers will have access).
 3. Run a test of the TestPyPI deployment on your local machine:
-    a. Create a new python environment > our latest required version, e.g. `python3.13 -m venv ~/.venvs/test_ucc`
-    b. Run `pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ ucc` to install from the TestPiPY deployment
-    c. Run `python -c "import ucc; print(ucc.__version__)"`. This should run successfully and (theoretically) show the latest version of UCC (bug [#312](#312).
+    a. Create a new python environment > our latest required version, e.g. ``python3.13 -m venv ~/.venvs/test_ucc``
+    b. | Run ``pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ ucc`` 
+       | to install from the TestPiPY deployment
+    c. | Run ``python -c "import ucc; print(ucc.__version__)"``.
+       | This should run successfully and show the latest version of UCC.
 4. If all went well in the TestPyPI step, you (as a maintainer) can go to the GH Actions and approve the deployment to real PyPI.
-    If for some reason this does not work, or fails to trigger on a release, you can also manually trigger the workflow in the Github Actions tab:
-    ```{figure} ../img/pypi_workflow.png
-    ---
-    width: 700px
-    name: pypi-publishing-workflow
-    ---
-    ```
+   If for some reason this does not work, or fails to trigger on a release, you can also manually trigger the workflow in the Github Actions tab:
+
+   .. image:: ./img/pypi_workflow.png
+      :height: 300
+      :width: 600
+      :alt: screenshot of pypi publishing workflow on GitHub
