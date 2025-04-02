@@ -28,6 +28,10 @@ for file in csv_files:
 
     # Add the extracted date as a new column in the dataframe
     df["date"] = date_label
+    if "pytket-peep" in df["compiler"].unique():
+        compiler_versions["pytket-peep"] = compiler_versions["pytket"]
+        # Remove pytket from compiler_versions for this datafile
+        compiler_versions.pop("pytket")
     df["compiler_version"] = df["compiler"].map(compiler_versions)
 
     # Append the dataframe to the list
