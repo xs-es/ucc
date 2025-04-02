@@ -167,7 +167,7 @@ def get_heavy_bitstrings(circuit: qiskit.QuantumCircuit) -> Set[str]:
     result = simulator.run(circuit, shots=1024).result()
     counts = list(result.get_counts().items())
     median = np.median([c for (_, c) in counts])
-    return set(bitstring for (bitstring, p) in counts if p > median)
+    return set(bitstring for (bitstring, c) in counts if c > median)
 
 
 def estimate_heavy_output_prob(
@@ -202,9 +202,7 @@ def estimate_heavy_output_prob(
         result.get_counts().get(bitstring, 0) for bitstring in heavy_bitstrings
     )
     nshots = 1024
-    hop = (
-        heavy_counts - 2 * math.sqrt(heavy_counts * (nshots - heavy_counts))
-    ) / nshots
+    hop = heavy_counts / nshots
     return hop
 
 
@@ -295,8 +293,8 @@ def simulate_expvals(
         compiled_circuit.measure_all()
         uncompiled_circuit.measure_all()
         return (
-            estimate_heavy_output_prob(compiled_circuit, noisy=True),
             estimate_heavy_output_prob(uncompiled_circuit, noisy=False),
+            estimate_heavy_output_prob(compiled_circuit, noisy=True),
             "HOP",
         )
 
