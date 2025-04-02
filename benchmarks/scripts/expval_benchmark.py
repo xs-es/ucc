@@ -1,5 +1,4 @@
 import sys
-import math
 import os.path
 from typing import Any, Set
 
