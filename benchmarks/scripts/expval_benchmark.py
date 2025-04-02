@@ -1,5 +1,4 @@
 import sys
-import math
 import os.path
 from typing import Any, Set
 
@@ -169,7 +168,7 @@ def get_heavy_bitstrings(circuit: qiskit.QuantumCircuit) -> Set[str]:
     result = simulator.run(circuit, shots=1024).result()
     counts = list(result.get_counts().items())
     median = np.median([c for (_, c) in counts])
-    return set(bitstring for (bitstring, p) in counts if p > median)
+    return set(bitstring for (bitstring, c) in counts if c > median)
 
 
 def estimate_heavy_output_prob(
@@ -204,9 +203,7 @@ def estimate_heavy_output_prob(
         result.get_counts().get(bitstring, 0) for bitstring in heavy_bitstrings
     )
     nshots = 1024
-    hop = (
-        heavy_counts - 2 * math.sqrt(heavy_counts * (nshots - heavy_counts))
-    ) / nshots
+    hop = heavy_counts / nshots
     return hop
 
 
@@ -257,8 +254,23 @@ def generate_qaoa_observable(num_qubits):
         # Convert to PauliSumOp
         pauli_strings.append("".join(pauli_string))
     coeffs = [weight for _, _, weight in weighted_edges]
-    observable = SparsePauliOp(pauli_strings, coeffs)
-    return observable
+    qaoa_observable = SparsePauliOp(pauli_strings, coeffs)
+    return qaoa_observable
+
+
+def generate_qcnn_observable(num_qubits):
+    """Generates the observable for the QCNN benchmarking circuits, based on
+    the observable defined in Iris Cong, Soonwon Choi, and Mikhail D. Lukin
+    "Quantum Convolutional Neural Networks". (2019) arXiv 1810.03787
+    (https://arxiv.org/abs/1810.03787).
+    """
+    pauli_strings = []
+    for i in range(num_qubits - 2):
+        pauli_string = ["I"] * num_qubits
+        pauli_string[i : i + 3] = ["Z", "X", "Z"]
+        pauli_strings.append("".join(pauli_string))
+    qcnn_observable = SparsePauliOp(pauli_strings)
+    return qcnn_observable
 
 
 def simulate_expvals(
@@ -282,8 +294,8 @@ def simulate_expvals(
         compiled_circuit.measure_all()
         uncompiled_circuit.measure_all()
         return (
-            estimate_heavy_output_prob(compiled_circuit, noisy=True),
             estimate_heavy_output_prob(uncompiled_circuit, noisy=False),
+            estimate_heavy_output_prob(compiled_circuit, noisy=True),
             "HOP",
         )
 
@@ -294,7 +306,10 @@ def simulate_expvals(
             num_qubits = compiled_circuit.num_qubits
             observable = generate_qaoa_observable(num_qubits)
             obs_str = "".join(("H_p = ", str(observable.to_sparse_list())))
-
+        elif circuit_name == "qcnn":
+            num_qubits = compiled_circuit.num_qubits
+            observable = generate_qcnn_observable(num_qubits)
+            obs_str = str(observable.to_sparse_list())
         else:
             obs_str = "Z" * compiled_circuit.num_qubits
             observable = Operator.from_label(obs_str)
