@@ -41,7 +41,7 @@ jobs:
               poetry run ./benchmarks/scripts/run_benchmarks.sh 8 && \
               poetry run python ./benchmarks/scripts/plot_avg_benchmarks_over_time.py && \
               poetry run python ./benchmarks/scripts/plot_latest_benchmarks.py
-              poetry run python ./benchmarks/scripts/plot_latest_expval_benchmarks.py
+              poetry run python ./benchmarks/scripts/plot_expval_benchmarks_over_time.py
             "
 
       # Commit and push benchmark results
@@ -59,4 +59,3 @@ jobs:
           git status
           git commit -m "Update benchmark results [benchmark chore]" || echo "No changes to commit"
           git push origin HEAD:${{ github.head_ref || github.ref_name }} --force
-
