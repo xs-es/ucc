@@ -44,7 +44,7 @@ Publishing a new version of UCC to PyPI (maintainers only)
 1. Follow the steps above for creating a new release.
 2. The deployment to TestPyPI should trigger automatically (only maintainers will have access).
 3. Run a test of the TestPyPI deployment on your local machine:
-    a. Create a new python environment > our latest required version, e.g. ``python3.13 -m venv ~/.venvs/test_ucc``
+    a. Create a new python environment ≥ our latest required version, e.g. ``python3.13 -m venv ~/.venvs/test_ucc``
     b. | Run ``pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ ucc`` 
        | to install from the TestPiPY deployment
     c. | Run ``python -c "import ucc; print(ucc.__version__)"``.
