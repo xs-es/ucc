@@ -67,6 +67,7 @@ unique_dates = new_version_dates.unique()
 # Filter on first occurrence of each compiler version based on the date
 df_dates = df_dates[df_dates["date"].isin(unique_dates)]
 
+df_dates.to_csv("./legacy_timing_results.csv", index=False)
 # Find the average compiled ratio for each compiler on each date
 avg_compiled_ratio = (
     df_dates.groupby(["compiler", "date", "compiler_version"])[
