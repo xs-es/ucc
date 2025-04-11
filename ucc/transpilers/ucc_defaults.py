@@ -1,6 +1,16 @@
 # Construct a custom compiler
 import os
-from qiskit.utils.parallel import CPU_COUNT
+
+try:
+    from qiskit.utils.parallel import default_num_processes
+except ImportError:
+    # Qiskit 1.0.0 doesn't have this function, so we make it ourselves
+    from qiskit.utils.parallel import CPU_COUNT
+
+    def default_num_processes():
+        return CPU_COUNT
+
+
 from qiskit.transpiler import PassManager
 from qiskit.circuit.equivalence_library import SessionEquivalenceLibrary as sel
 from qiskit import user_config
@@ -125,5 +135,5 @@ def _get_trial_count(default_trials=5):
     if CONFIG.get("sabre_all_threads", None) or os.getenv(
         "QISKIT_SABRE_ALL_THREADS"
     ):
-        return max(CPU_COUNT, default_trials)
+        return default_num_processes()
     return default_trials
