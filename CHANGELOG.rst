@@ -1,6 +1,43 @@
 Changelog
 =========
 
+[0.4.5] - 2025-04-15
+--------------------
+
+In version 0.4.5, we re-enabled plotting of expectation value benchmark data and continued refinement of the expectation value benchmarking flow,
+including the addition of a custom observable for QCNN circuits, adjustments in the applied gate error rates to reflect capabilities of current devices,
+and reporting of normalized relative error rates instead of absolute error.
+
+We also automated the pypi publishing workflow upon release, added support for Qiskit 2.0 along with other dependency upgrades, 
+and updated our infrastructure to reflect the GitHub rebranding of UCC's home organization, [Unitary Foundation](https://github.com/unitaryfoundation)
+
+Added
+^^^^^^^^^^^^^^^^^^^^^
+
+- Add section on pypi publishing to dev docs #323. [@Misty-W]
+- Re-enable expval benchmarks. #322 [@natestemen]
+- Adding pypi version and download stats to readme. #318 [@Shivansh20128]
+- Add manual trigger to PyPI publishing. #311 [@jordandsullivan]
+- Add custom qcnn observable. #310 [@Misty-W]
+- Create first draft of python-publish.yml. #309 [@jordandsullivan]
+
+Fixed
+^^^^^^^^^^^^^^^^^^^^^
+
+- Fix pytket version ranges. #331 [@bachase]
+- Fix expval benchmark plotting script name. #324 [@natestemen]
+
+Changed
+^^^^^^^^^^^^^^^^^^^^^
+
+- Update dependencies (including to qiskit 2.0.0). #325 [@bachase]
+- Use normalized relative error for expectation value benchmarking. #321 [@natestemen]
+- Update GitHub organization name from unitaryfund to unitaryfoundation. #320 [@bachase]
+- Using argparse to parse arguments. #319 [@Shivansh20128]
+- Upgrade dependencies. #317 [@bachase]
+- Use error rates reflecting current quantum devices #315 [@natestemen]
+
+
 [0.4.4] - 2025-03-13
 --------------------
 
