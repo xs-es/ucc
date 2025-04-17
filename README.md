@@ -29,7 +29,7 @@ By leveraging [qBraid](https://github.com/qBraid/qBraid), UCC interfaces automat
 pip install ucc
 ```
 
-If developing or running benchmarks, please install [Poetry](https://github.com/python-poetry/install.python-poetry.org), which is used to managed dependencies. Then setup a dev version via:
+If developing, please install [Poetry](https://github.com/python-poetry/install.python-poetry.org), which is used to managed dependencies. Then setup a dev version via:
 
 ```bash
 git clone https://github.com/unitaryfoundation/ucc.git
@@ -77,14 +77,15 @@ def test_cirq_compile():
 
 UCC seeks to provide an end-to-end compiler that works well for the majority of the users out of the box. Today, this is achieved by running a particular subset of [Qiskit](https://github.com/Qiskit/qiskit) transpiler passes.
 To ensure we continue to improve performance and meet user needs, we regularly run benchmarks comparing UCC against the latest versions of leading quantum compiler frameworks across a range of circuits. Here’s the latest:
-![alt text](benchmarks/latest_compiler_benchmarks_by_circuit.png)
+![alt text](https://github.com/unitaryfoundation/ucc-bench/blob/main/results/ucc-benchmarks-8-core-U22.04/latest_compiler_benchmarks_by_circuit.png?raw=true)
 
 And here you can see progress over time, with new package versions labeled for each compiler:
-![alt text](benchmarks/avg_compiler_benchmarks_over_time.png)
-where pytket-peep indicates the `FullPeepHoleOptimize` function of PyTKET. Note that the compile times before 2024-12-10 may have been run on different classical compute instances, so their runtime is not reported here, but you can find this data in benchmarks/results.
-After 2024-12-10, all data present in this plot is on the same compute instance using our [ucc-benchmarks](https://github.com/unitaryfoundation/ucc/blob/main/.github/workflows/ucc-benchmarks.yml) GitHub Actions workflow.
+![alt text](https://github.com/unitaryfoundation/ucc-bench/blob/main/results/ucc-benchmarks-8-core-U22.04/avg_compiler_benchmarks_over_time.png?raw=true)
+where pytket-peep indicates the `FullPeepHoleOptimize` function of PyTKET.
 
-To learn more about running these benchmarks, the overall benchmark philosophy, or how to contribute to improving the benchmarking methodology, check out the [benchmarking section](https://ucc.readthedocs.io/en/latest/benchmarking.html) in the docs.
+The benchmark code, configurations and raw results from running on specific hardware are maintined in the companion repository of [`ucc-bench`](https://github.com/unitaryfoundation/ucc-bench).
+
+To learn more about running these benchmarks, the overall benchmark philosophy, or how to contribute to improving the benchmarking methodology, check out the [benchmarking section](https://ucc.readthedocs.io/en/latest/benchmarking.html) in the docs or the `README.md` in [`ucc-bench`](https://github.com/unitaryfoundation/ucc-bench).
 <!-- end-how-does-ucc-stack-up -->
 
 ## Contributing

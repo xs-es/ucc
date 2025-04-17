@@ -8,6 +8,8 @@ The most common ways to contribute here are
 1. opening an `issue <https://github.com/unitaryfoundation/ucc/issues/new/choose>`_ to report a bug or propose a new feature, or ask a question, and
 2. opening a `pull request <https://github.com/unitaryfoundation/ucc/pulls>`_ to fix a bug, or implement a desired feature.
 
+For issues/contributions related to benchmarks, please open in the `ucc-bench <https://github.com/unitaryfoundation/ucc-bench>`_ repo
+
 The rest of this document describes the technical details of getting set up to develop, and make your first contribution to ucc.
 
 Setting up your development environment
