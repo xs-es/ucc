@@ -4,12 +4,13 @@ Changelog
 [0.4.5] - 2025-04-15
 --------------------
 
-In version 0.4.5, we re-enabled plotting of expectation value benchmark data and continued refinement of the expectation value benchmarking flow,
-including the addition of a custom observable for QCNN circuits, adjustments in the applied gate error rates to reflect capabilities of current devices,
-and reporting of normalized relative error rates instead of absolute error.
+In version 0.4.5, we enabled plotting of relative errors on the simulated benchmarks and continued refinement of the expectation value benchmarking flow,
+including the addition of a custom observable for QCNN circuits and adjustments in the applied gate error rates to reflect capabilities of current devices.
 
 We also automated the pypi publishing workflow upon release, added support for Qiskit 2.0 along with other dependency upgrades, 
 and updated our infrastructure to reflect the GitHub rebranding of UCC's home organization, [Unitary Foundation](https://github.com/unitaryfoundation)
+
+Thanks to our first external contributor @Shivansh20128 for improving UCC code and documentation!
 
 Added
 ^^^^^^^^^^^^^^^^^^^^^
