@@ -29,7 +29,7 @@ Our benchmarks follow a structured methodology to ensure consistency and reliabi
 2. **Compilers**: UCC is benchmarked comparing its default passes (defined in :class:`ucc.transpilers.ucc_defaults.UCCDefault1`) against other similar defaults for leading compilers, including `Qiskit <https://github.com/Qiskit/qiskit>`_, `Cirq <https://github.com/quantumlib/Cirq>`_, and `PyTKET <https://github.com/CQCL/tket>`_.
 
 3. **Metrics**: We track several metrics to evaluate compiler performance:
-    - *Compiled Gatecount Ratio*: Measures the ratio of 2-qubit gates in the compiled versus raw circuit.
+    - *Compiled Gate count Ratio*: Measures the ratio of 2-qubit gates in the compiled versus raw circuit.
     - *Compilation Time*: Tracks the time taken to compile a circuit.
     - *Observable under noise*: Measures the fidelity of the compiled circuit under noise, using an observable relevant for that circuit.
 
