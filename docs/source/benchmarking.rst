@@ -41,17 +41,10 @@ Our benchmarks follow a structured methodology to ensure consistency and reliabi
 Running the benchmarks
 ----------------------
 
-To run the benchmarks locally, first follow the steps in the
-`ucc-bench README <https://github.com/unitaryfoundation/ucc-bench/blob/main/README.md>`_ to clone the repository and setup your environment.
+To run the benchmarks locally, follow the steps in the
+`ucc-bench README <https://github.com/unitaryfoundation/ucc-bench/blob/main/README.md#usage-running-a-benchmark-suite>`_. These instructions
+will tell you how to setup your enviroment, install the required dependencies, and run the benchmarks.
 
-You then run the benchmark script via:
-
-.. code-block:: sh
-
-   uv run ucc-bench
-
-The results are stored in ``.local_results/{host_name}/*`` as JSON and CSV files. Refer to the `ucc-bench` README for more details on
-configuring the benchmark run and understanding the results.
 
 Circuits
 --------
@@ -106,5 +99,4 @@ We welcome contributions to improve UCC’s benchmarking suite! This could inclu
 - **Improving Benchmark Metrics** to add additional metrics of interest to compare compiler performance.
 - **Optimizing Compiler Configurations** to improve the default configuration of compilers in the benchmark.
 
-Take a look at
-:doc:`contributing guide <contributing>` for the more general steps to follow on making contributions to the UCC or UCC-bench codebases.
+To contribute, please open an issue in the `ucc-bench <https://github.com/bachase/ucc-bench>_` repository.
