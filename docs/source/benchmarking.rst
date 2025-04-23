@@ -99,4 +99,4 @@ We welcome contributions to improve UCC’s benchmarking suite! This could inclu
 - **Improving Benchmark Metrics** to add additional metrics of interest to compare compiler performance.
 - **Optimizing Compiler Configurations** to improve the default configuration of compilers in the benchmark.
 
-To contribute, please open an issue in the `ucc-bench <https://github.com/bachase/ucc-bench>_` repository.
+To contribute, please open an issue in the `ucc-bench <https://github.com/bachase/ucc-bench>`_ repository.
