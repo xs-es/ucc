@@ -11,9 +11,58 @@ from qiskit.transpiler.passes.utils import CheckMap
 from qiskit.transpiler import Target
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.circuit.library import CXGate, HGate, XGate
-from benchmarks.scripts import qcnn_circuit, random_clifford_circuit
 from ucc import compile
 from ucc.transpilers.ucc_defaults import UCCDefault1
+import numpy as np
+
+
+def qcnn_circuit(N, seed=12345):
+    """A circuit to generate a Quantum Convolutional Neural Network
+
+    Parameters:
+        N (int): Number of qubits
+
+    Returns:
+        QiskitCircuit: Output circuit
+    """
+    rng = np.random.default_rng(seed=seed)
+
+    qc = QiskitCircuit(N)
+    num_layers = int(np.ceil(np.log2(N)))
+    i_conv = 0
+    for i_layer in range(num_layers):
+        for i_sub_layer in [0, 2**i_layer]:
+            for i_q1 in range(i_sub_layer, N, 2 ** (i_layer + 1)):
+                i_q2 = 2**i_layer + i_q1
+                if i_q2 < N:
+                    qc.rxx(rng.random(), i_q1, i_q2)
+                    qc.ry(rng.random(), i_q1)
+                    qc.ry(rng.random(), i_q2)
+                    i_conv += 1
+
+    return qc
+
+
+def random_clifford_circuit(num_qubits, seed=12345):
+    """Generate a random clifford circuit
+    Parameters:
+        num_qubits (int): Number of qubits
+        seed (int): Optional. Seed the random number generator, default=12345
+
+    Returns:
+        QuantumCircuit: Clifford circuit
+    """
+    # This code is used to generate the QASM file
+    from qiskit.circuit.random import random_clifford_circuit
+
+    gates = ["cx", "cz", "cy", "swap", "x", "y", "z", "s", "sdg", "h"]
+    qc = random_clifford_circuit(
+        num_qubits,
+        gates=gates,
+        num_gates=10 * num_qubits * num_qubits,
+        seed=seed,
+    )
+    return qc
 
 
 def test_qiskit_compile():
