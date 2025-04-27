@@ -15,17 +15,17 @@ The rest of this document describes the technical details of getting set up to d
 Setting up your development environment
 ---------------------------------------
 
-We leverage `poetry <https://python-poetry.org/>`_ for packaging and dependency management.
-After installing poetry, run the following commands to clone the repository, create a poetry managed virtual environment for development, and install dependencies.
+We leverage `uv <https://docs.astral.sh/uv/>`_ for packaging and dependency management.
+After installing uv, run the following commands to clone the repository, create a uv managed virtual environment for development, and install dependencies.
 
 .. code:: bash
 
     git clone https://github.com/unitaryfoundation/ucc.git
     cd ucc
-    poetry install
+    uv sync --all-extras --all-groups
 
-For all of the following commands, we assume you either prefix each command with ``poetry run``, or
-you first active the `poetry managed virtual environment <https://python-poetry.org/docs/managing-environments/#activating-the-environment>`_ by running the output of ``poetry env activate`` in your shell.
+For all of the following commands, we assume you either prefix each command with ``uv run``, or
+you first active the `uv managed virtual environment <https://docs.astral.sh/uv/pip/environments/#using-a-virtual-environment>`_ by running ``source .venv/bin/activate`` in your shell.
 
 To run the unit tests, you can use the following command
 
