@@ -24,8 +24,12 @@ After installing uv, run the following commands to clone the repository, create 
     cd ucc
     uv sync --all-extras --all-groups
 
+This particular invocation of ``uv sync`` ensures optional developer and documentation dependencies are installed.
+
 For all of the following commands, we assume you either prefix each command with ``uv run``, or
-you first active the `uv managed virtual environment <https://docs.astral.sh/uv/pip/environments/#using-a-virtual-environment>`_ by running ``source .venv/bin/activate`` in your shell.
+you first activate the `uv managed virtual environment <https://docs.astral.sh/uv/pip/environments/#using-a-virtual-environment>`_ by running ``source .venv/bin/activate`` in your shell.
+
+For more details on using uv, refer to its `documentation <https://docs.astral.sh/uv/>`__ or `this tutorial <https://realpython.com/python-uv/>`__.
 
 To run the unit tests, you can use the following command
 

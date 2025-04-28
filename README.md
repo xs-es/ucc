@@ -25,17 +25,24 @@ By leveraging [qBraid](https://github.com/qBraid/qBraid), UCC interfaces automat
 
 **Note**: UCC requires Python version ≥ 3.12.
 
+For normal users of `UCC`, you can install via `pip` as
 ```bash
 pip install ucc
 ```
 
-If developing, please install [uv](https://docs.astral.sh/uv/getting-started/installation/), which is used to managed dependencies. Then setup a dev version via:
+If developing, including if building custom transpiler passes, please install [uv](https://docs.astral.sh/uv/getting-started/installation/), which is used to managed dependencies and ensure a reproducible development enviroment. Once uv is installed, setup your development environment via
 
 ```bash
 git clone https://github.com/unitaryfoundation/ucc.git
 cd ucc
 uv sync --all-extras --all-groups
 ```
+
+This `uv sync` command ensures the optional developer and documentation dependences are installed. For development with uv, we assume you either prefix each command with ``uv run``, or
+you first activate the [uv managed virtual environment](https://docs.astral.sh/uv/pip/environments/#using-a-virtual-environment) by running ``source .venv/bin/activate`` in your shell.
+
+For more details on using uv, refer to its [documentation](https://docs.astral.sh/uv/) or [this tutorial](https://realpython.com/python-uv/).
+
 
 ### Example with Qiskit, Cirq, and PyTKET
 
