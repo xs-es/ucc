@@ -1,19 +1,43 @@
-Changelog
-=========
+# Changelog
 
-[0.4.5] - 2025-04-15
---------------------
+## [0.4.6] - 2025-04-16
+
+In version 0.4.6, we refactored the UCC benchmarking workflows and migrated them to a
+standalone repository [ucc-bench](https://github.com/unitaryfoundation/ucc-bench). We updated the corresponding [documention](https://ucc.readthedocs.io/en/latest/benchmarking.html), adding details on the benchmarked circuits and compiler configurations. As part of this migration, benchmarks can be run on pending PRs to understand the performance implications of a change before merging. The results are posted as comments to the PR (see [here](https://github.com/unitaryfoundation/ucc/pull/359#issuecomment-2876701484) for an example). Going forward, changes related to benchmarking infrastructure will be primarily tracked in the [ucc-bench](https://github.com/unitaryfoundation/ucc-bench) repository.
+
+In preparation for supporting compilation of dynamic circuits, we removed a previously default target gateset compiler pass, and instead added support for users to specify a target gateset to apply post-compilation.
+
+We also started work on a fault tolerance checker based on [this](https://github.com/unitaryfoundation/ucc/discussions/344) discussion. We are developing the prototype in a separate [ucc-ft](https://github.com/unitaryfoundation/ucc-ft), and will track progress there until we reach a point to consider merging the functionality back into ucc.
+
+We also migrated to [uv](https://docs.astral.sh/uv/) for package management, and enable Dependabot for upgrading dependencies.
+
+## What's Changed
+### Added
+* Add workflow to trigger ucc-bench run by @bachase in https://github.com/unitaryfoundation/ucc/pull/327
+
+### Changed
+* Migrate to ucc-bench by @bachase in https://github.com/unitaryfoundation/ucc/pull/335
+* Migrate to uv for package/project management by @bachase in https://github.com/unitaryfoundation/ucc/pull/347
+* 338 dynamic circuits qec by @jordandsullivan in https://github.com/unitaryfoundation/ucc/pull/355
+* 342 target gateset by @jordandsullivan in https://github.com/unitaryfoundation/ucc/pull/354
+* Separate dependency updates in auto-generated release notes by @bachase in https://github.com/unitaryfoundation/ucc/pull/361
+
+### Dependencies
+* Bump astral-sh/setup-uv from 5 to 6 by @dependabot in https://github.com/unitaryfoundation/ucc/pull/351
+* Bump actions/create-github-app-token from 1 to 2 by @dependabot in https://github.com/unitaryfoundation/ucc/pull/349
+* Bump pytket from 2.3.1 to 2.4.1 by @dependabot in https://github.com/unitaryfoundation/ucc/pull/359
+
+## [0.4.5] - 2025-04-15
 
 In version 0.4.5, we enabled plotting of relative errors on the simulated benchmarks and continued refinement of the expectation value benchmarking flow,
 including the addition of a custom observable for QCNN circuits and adjustments in the applied gate error rates to reflect capabilities of current devices.
 
-We also automated the pypi publishing workflow upon release, added support for Qiskit 2.0 along with other dependency upgrades, 
+We also automated the pypi publishing workflow upon release, added support for Qiskit 2.0 along with other dependency upgrades,
 and updated our infrastructure to reflect the GitHub rebranding of UCC's home organization, [Unitary Foundation](https://github.com/unitaryfoundation)
 
 Thanks to our first external contributor @Shivansh20128 for improving UCC code and documentation!
 
-Added
-^^^^^^^^^^^^^^^^^^^^^
+### Added
 
 - Add section on pypi publishing to dev docs #323. [@Misty-W]
 - Re-enable expval benchmarks. #322 [@natestemen]
@@ -22,14 +46,12 @@ Added
 - Add custom qcnn observable. #310 [@Misty-W]
 - Create first draft of python-publish.yml. #309 [@jordandsullivan]
 
-Fixed
-^^^^^^^^^^^^^^^^^^^^^
+### Fixed
 
 - Fix pytket version ranges. #331 [@bachase]
 - Fix expval benchmark plotting script name. #324 [@natestemen]
 
-Changed
-^^^^^^^^^^^^^^^^^^^^^
+### Changed
 
 - Update dependencies (including to qiskit 2.0.0). #325 [@bachase]
 - Use normalized relative error for expectation value benchmarking. #321 [@natestemen]
@@ -39,27 +61,23 @@ Changed
 - Use error rates reflecting current quantum devices #315 [@natestemen]
 
 
-[0.4.4] - 2025-03-13
---------------------
+## [0.4.4] - 2025-03-13
 
 In version 0.4.4, we updated and expanded our documentation and streamlined benchmark data visualization. We also implemented more custom observables for our expectation value benchmarks, improved the user experience for adding custom transpiler passes, and switched to using the `FullPeepHoleOptimize` function to benchmark PyTKET based on feedback from the community!
 
-Added
-^^^^^^^^^^^^^^^^^^^^^
+### Added
 
 - Enable repeat use of `UCCDefault1` and update documentation. #268 [@bachase]
 - Support custom passes in `ucc.compile`. #301 [@bachase]
 - Add note defining `pytket-peep` in README. #284 [@jordandsullivan]
 - Add `dependabot` for automated dependency updates. #297 [@bachase]
 
-Fixed
-^^^^^^^^^^^^^^^^^^^^^
+### Fixed
 
 - Improve reproducibility and consistency of benchmarking workflow. #253 [@bachase]
 - Ensure `target_device` is used when specified, not just connectivity, when compiling. #290 [@bachase]
 
-Changed
-^^^^^^^^^^^^^^^^^^^^^
+### Changed
 
 - Change QAOA observable to use the problem Hamiltonian. #260 [@Misty-W]
 - Switch PyTKET to use `FullPeepHoleOptimize`. #266 [@jordandsullivan]
@@ -67,15 +85,13 @@ Changed
 - Update Poetry lock file, Qiskit, and PyTKET versions. #294 [@jordandsullivan]
 - Relabel Qiskit data in plots. #300 [@jordandsullivan]
 
-Removed
-^^^^^^^^^^^^^^^^^^^^^
+### Removed
 
 - Remove violin plots from benchmark visualizations. #282 [@jordandsullivan]
 - Remove outdated README reference to custom transpiler passes. #274 [@jordandsullivan]
 - Remove specific dated data from plots. #283 [@jordandsullivan]
 
-[0.4.3] - 2025-02-26
---------------------
+## [0.4.3] - 2025-02-26
 
 In version 0.4.3, we enhanced UCC infrastructure, benchmarking, and documentation.
 Release highlights include the introduction of
@@ -86,8 +102,7 @@ In the case of quantum volume circuits, we changed the expectation value metric 
 ZZZZZZZZZZZ observable to the heavy output probability.
 
 
-Added
-^^^^^^^^^^^^^^^^^^^^^
+### Added
 
 - Mention benchpress explicitly in License section. #241 [@jordandsullivan]
 - Add target gate set for cirq benchmarking #224 [@bachase]
@@ -96,8 +111,7 @@ Added
 - Add explicit Sphinx config in .readthedocs.yaml file #180 [@Misty-W]
 
 
-Fixed
-^^^^^^^^^^^^^^^^^^^^^
+### Fixed
 
 - Ensure benchmarking runs don't add gitignored files #247 [@bachase]
 - Pull latest compatible version of libraries when generating benchmark docker #244 [@bachase]
@@ -109,8 +123,7 @@ Fixed
 - Combine recent data files w/ incomplete benchmarks #207 [@Misty-W]
 
 
-Changed
-^^^^^^^^^^^^^^^^^^^^^
+### Changed
 
 - Run pytest before ruff linter checks #267 [@jordandsullivan]
 - Clarify poetry usage #265 [@bachase]
@@ -128,22 +141,19 @@ Changed
 - Update README.md #178 by willzeng
 
 
-Removed
-^^^^^^^^^^^^^^^^^^^^^
+### Removed
 
 - Remove custom transpilation passes #256 [@bachase]
 
 
-[0.4.2] - 2025-01-17
---------------------
+## [0.4.2] - 2025-01-17
 
 Version 0.4.2 marks the first formal release to [PyPI](https://pypi.org/project/ucc/) of the Unitary Compiler Collection (UCC), a Python library for frontend-agnostic, high performance compilation of quantum circuits.
 
 This release contains the default UCC compilation workflow, including circuit translation and optimization passes, pass management, and the user interface.
 It also encompasses benchmarking scripts and utilities, tests, documentation, and basic infrastructure.
 
-Added
-^^^^^^^^^^^^^^^^^^^^^
+### Added
 
 - PyPI release #165 [@Misty-W]
 - Add RTD for online documentation #164 [@natestemen]
@@ -189,8 +199,7 @@ Added
 - Choose a license #1 [@jordandsullivan]
 
 
-Fixed
-^^^^^^^^^^^^^^^^^^^^^
+### Fixed
 
 - Install error due to openqasm versioning #154 [@Misty-W]
 - fix small_test.sh CLI command to deal with spaces in paths #152 [@willzeng]
@@ -205,8 +214,7 @@ Fixed
 - Hidden rust dependency on install #74 [@Misty-W]
 
 
-Removed
-^^^^^^^^^^^^^^^^^^^^^
+### Removed
 
 - Remove innaccurate data for multi-q gates #86 [@jordandsullivan]
 - Remove QuantumTranslator references #23 [@jordandsullivan]
