@@ -8,9 +8,9 @@ from qiskit.converters import circuit_to_dag
 from qiskit.quantum_info import Statevector
 from qiskit.transpiler.passes import GatesInBasis
 from qiskit.transpiler.passes.utils import CheckMap
-from qiskit.transpiler import Target
 from qiskit.transpiler.basepasses import TransformationPass
-from qiskit.circuit.library import CXGate, HGate, XGate
+from qiskit.circuit.library import HGate, XGate
+from ucc.tests.mock_backends import Mybackend
 from ucc import compile
 from ucc.transpilers.ucc_defaults import UCCDefault1
 import numpy as np
@@ -88,27 +88,6 @@ def test_tket_compile():
     assert isinstance(result_circuit, TketCircuit)
 
 
-def test_compile_with_target_device():
-    circuit = QiskitCircuit(3)
-    circuit.cx(0, 1)
-    circuit.cx(0, 2)
-
-    # Create a simple target that does not have direct CX between 0 and 2
-    t = Target(description="Fake device", num_qubits=3)
-    t.add_instruction(CXGate(), {(0, 1): None, (1, 2): None})
-    result_circuit = compile(
-        circuit, return_format="original", target_device=t
-    )
-
-    # Check compilation respected the target device topology
-    dag = circuit_to_dag(result_circuit)
-    analysis_pass = CheckMap(
-        t.build_coupling_map(), property_set_field="check_map"
-    )
-    analysis_pass.run(dag)
-    assert analysis_pass.property_set["check_map"]
-
-
 def test_custom_pass():
     """Verify that a custom pass works with a non-qiskit input circuit"""
 
@@ -128,6 +107,59 @@ def test_custom_pass():
 
     post_compiler_circuit = compile(cirq_circuit, custom_passes=[HtoX()])
     assert_same_circuits(post_compiler_circuit, CirqCircuit(X(qubit)))
+
+    def test_compile_target_device_opset():
+        circuit = QiskitCircuit(3)
+        circuit.cx(0, 1)
+        circuit.cx(0, 2)
+
+        # Create a simple target that does not have direct CX between 0 and 2
+        t = Mybackend().target
+        result_circuit = compile(
+            circuit, return_format="original", target_device=t
+        )
+        # Check that the gates in the final circuit are all supported on the target device
+        assert set(op.name for op in result_circuit).issubset(
+            t.operation_names
+        )
+
+    def test_compile_target_device_coupling_map():
+        circuit = QiskitCircuit(3)
+        circuit.cx(0, 1)
+        circuit.cx(0, 2)
+
+        # Create a simple target that does not have direct CX between 0 and 2
+        t = Mybackend().target
+        result_circuit = compile(
+            circuit, return_format="original", target_device=t
+        )
+        # Check that the compiled circuit respects the coupling map of the target device
+        analysis_pass = CheckMap(
+            t.build_coupling_map(), property_set_field="check_map"
+        )
+
+        dag = circuit_to_dag(result_circuit)
+        analysis_pass.run(dag)
+        assert analysis_pass.property_set["check_map"]
+
+
+def test_compile_with_target_gateset():
+    """Test that the final circuit respects the user-defined gateset, no target device"""
+    circuit = QiskitCircuit(2)
+    circuit.cx(0, 1)
+    circuit.h(0)
+
+    target_gateset = {
+        "ry",
+        "rx",
+        "cz",
+    }
+    result_circuit = compile(
+        circuit,
+        target_gateset=target_gateset,
+    )
+
+    assert set(op.name for op in result_circuit).issubset(target_gateset)
 
 
 @pytest.mark.parametrize(

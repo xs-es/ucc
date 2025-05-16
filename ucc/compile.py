@@ -1,8 +1,8 @@
 from qbraid.programs.alias_manager import get_program_type_alias
 from qbraid.transpiler import ConversionGraph
-from qbraid.transpiler import transpile
+from qbraid.transpiler import transpile as translate
 from .transpilers.ucc_defaults import UCCDefault1
-
+from qiskit import transpile as qiskit_transpile
 
 import sys
 import warnings
@@ -26,7 +26,11 @@ supported_circuit_formats = ConversionGraph().nodes()
 
 
 def compile(
-    circuit, return_format="original", target_device=None, custom_passes=None
+    circuit,
+    return_format="original",
+    target_gateset=None,
+    target_device=None,
+    custom_passes=None,
 ):
     """Compiles the provided quantum `circuit` by translating it to a Qiskit
     circuit, transpiling it, and returning the optimized circuit in the
@@ -37,6 +41,8 @@ def compile(
         return_format (str): The format in which your circuit will be returned.
             e.g., "TKET", "OpenQASM2". Check ``ucc.supported_circuit_formats()``.
             Defaults to the format of the input circuit.
+        target_gateset (set[str]): (optional) The gateset to compile the circuit to.
+            e.g. {"cx", "rx",...}. Defaults to the gateset of the target device, or if none is provided, {"cx", "rz", "rx", "ry", "h"}.
         target_device (qiskit.transpiler.Target): (optional) The target device to compile the circuit for. None if no device to target
         custom_passes (list[qiskit.transpiler.TransformationPass]): (optional) A list of custom passes to apply after the default set
 
@@ -47,7 +53,7 @@ def compile(
         return_format = get_program_type_alias(circuit)
 
     # Translate to Qiskit Circuit object
-    qiskit_circuit = transpile(circuit, "qiskit")
+    qiskit_circuit = translate(circuit, "qiskit")
     ucc_default1 = UCCDefault1(target_device=target_device)
     if custom_passes is not None:
         ucc_default1.pass_manager.append(custom_passes)
@@ -55,6 +61,26 @@ def compile(
         qiskit_circuit,
     )
 
+    if target_gateset is not None:
+        # Translate into user-defined gateset; no optimization
+        compiled_circuit = qiskit_transpile(
+            compiled_circuit, basis_gates=target_gateset, optimization_level=0
+        )
+    elif hasattr(target_device, "operation_names"):
+        if target_gateset not in target_device.operation_names:
+            warnings.warn(
+                f"Warning: The target gateset {target_gateset} is not supported by the target device. "
+            )
+        # Use target_device gateset if available
+        target_gateset = target_device.operation_names
+
+        # Translate into the target device gateset; no optimization
+        compiled_circuit = qiskit_transpile(
+            compiled_circuit,
+            basis_gates=target_gateset,
+            optimization_level=0,
+        )
+
     # Translate the compiled circuit to the desired format
-    final_result = transpile(compiled_circuit, return_format)
+    final_result = translate(compiled_circuit, return_format)
     return final_result
