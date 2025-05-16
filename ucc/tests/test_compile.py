@@ -117,9 +117,8 @@ def test_custom_pass():
 
         def run(self, dag):
             for node in dag.op_nodes():
-                if not isinstance(node.op, HGate):
-                    continue
-                dag.substitute_node(node, XGate())
+                if isinstance(node.op, HGate):
+                    dag.substitute_node(node, XGate())
             return dag
 
     # Example usage with a cirq circuit, stil showcasing the cross-frontend compatibility
@@ -145,6 +144,29 @@ def test_compilation_retains_gateset(circuit_function, num_qubits, seed):
     analysis_pass = GatesInBasis(basis_gates=target_basis)
     analysis_pass.run(dag)
     assert analysis_pass.property_set["all_gates_in_basis"]
+
+
+# Test compilation accepts QASM circuits containing IF-ELSE
+def test_compile_if_else():
+    qasm = """
+    OPENQASM 3;
+    include "stdgates.inc";
+    bit[3] data;
+    bit[2] syndrome;
+    qubit[3] q0;
+    qubit[2] q1;
+
+    syndrome[0] = measure q0[0];
+    syndrome[1] = measure q1[1];
+    if (syndrome[0]) {
+        x q1[0];
+    }
+    if (syndrome[1]) {
+        x q1[0];
+    }
+    """
+    transpiled = compile(qasm, return_format="qiskit")
+    assert isinstance(transpiled, QiskitCircuit)
 
 
 @pytest.mark.parametrize(
