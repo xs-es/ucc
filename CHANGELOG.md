@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.4.6] - 2025-04-16
+
+In version 0.4.6, we refactored the UCC benchmarking workflows and migrated them to a
+standalone repository [ucc-bench](https://github.com/unitaryfoundation/ucc-bench). We updated the corresponding [documention](https://ucc.readthedocs.io/en/latest/benchmarking.html), adding details on the benchmarked circuits and compiler configurations. As part of this migration, benchmarks can be run on pending PRs to understand the performance implications of a change before merging. The results are posted as comments to the PR (see [here](https://github.com/unitaryfoundation/ucc/pull/359#issuecomment-2876701484) for an example). Going forward, changes related to benchmarking infrastructure will be primarily tracked in the [ucc-bench](https://github.com/unitaryfoundation/ucc-bench) repository.
+
+In preparation for supporting compilation of dynamic circuits, we removed a previously default target gateset compiler pass, and instead added support for users to specify a target gateset to apply post-compilation.
+
+We also started work on a fault tolerance checker based on [this](https://github.com/unitaryfoundation/ucc/discussions/344) discussion. We are developing the prototype in a separate [ucc-ft](https://github.com/unitaryfoundation/ucc-ft), and will track progress there until we reach a point to consider merging the functionality back into ucc.
+
+We also migrated to [uv](https://docs.astral.sh/uv/) for package management, and enable Dependabot for upgrading dependencies.
+
+## What's Changed
+### Added
+* Add workflow to trigger ucc-bench run by @bachase in https://github.com/unitaryfoundation/ucc/pull/327
+
+### Changed
+* Migrate to ucc-bench by @bachase in https://github.com/unitaryfoundation/ucc/pull/335
+* Migrate to uv for package/project management by @bachase in https://github.com/unitaryfoundation/ucc/pull/347
+* 338 dynamic circuits qec by @jordandsullivan in https://github.com/unitaryfoundation/ucc/pull/355
+* 342 target gateset by @jordandsullivan in https://github.com/unitaryfoundation/ucc/pull/354
+* Separate dependency updates in auto-generated release notes by @bachase in https://github.com/unitaryfoundation/ucc/pull/361
+
+### Dependencies
+* Bump astral-sh/setup-uv from 5 to 6 by @dependabot in https://github.com/unitaryfoundation/ucc/pull/351
+* Bump actions/create-github-app-token from 1 to 2 by @dependabot in https://github.com/unitaryfoundation/ucc/pull/349
+* Bump pytket from 2.3.1 to 2.4.1 by @dependabot in https://github.com/unitaryfoundation/ucc/pull/359
+
 ## [0.4.5] - 2025-04-15
 
 In version 0.4.5, we enabled plotting of relative errors on the simulated benchmarks and continued refinement of the expectation value benchmarking flow,
