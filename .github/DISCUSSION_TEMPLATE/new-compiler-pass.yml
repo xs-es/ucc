@@ -72,10 +72,11 @@ body:
       value: |
         UCC benchmarks live in the separate repo called [ucc-bench](https://github.com/unitaryfoundation/ucc-bench). We have a [suite of quantum circuits](https://github.com/unitaryfoundation/ucc-bench/tree/main/benchmarks) that we regularly benchmark UCC and other popular quantum compilers on. Several of the key metrics we track are:
         
-        Compiling alone:
+        - Compiling alone:
           - 2-qubit gate count after circuit compilation (lower is better)
           - Total runtime of compilation (lower is better)
-        Simulating compiled circuits:
+        
+        - Simulating compiled circuits:
           - Relative errors in simulated expectation values for a defined set of observables (lower is better)
         
         Your new pass should improve one or more of these metrics on our existing benchmark suite.  
