@@ -86,6 +86,7 @@ body:
         #### When you are ready to run benchmarks...  
         
         6. Open a [pull request (PR) to merge your fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork) of UCC in main (mark it as a Draft unless you are ready for final review), ping a UCC maintainer, and we will trigger the benchmarking suite to run. Alternately, you can also run the benchmarks locally by comparing your UCC version to main, as explained in the [ucc-bench README](https://github.com/unitaryfoundation/ucc-bench#). 
+        ---
     validations:
       required: false
 
@@ -95,8 +96,6 @@ body:
     attributes:
       label: "Useful documentation"
       value: |
-        ---
-        ### Useful documentation
         [Contributing Guide](https://ucc.readthedocs.io/en/latest/contributing.html)  
         [Setting up your Developer Environment](https://ucc.readthedocs.io/en/latest/contributing.html#setting-up-your-development-environment)  
         [Writing a Custom Transpiler Pass](https://ucc.readthedocs.io/en/latest/user_guide.html#writing-a-custom-pass) 
