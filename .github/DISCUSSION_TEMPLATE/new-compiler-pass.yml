@@ -99,5 +99,5 @@ body:
         [Setting up your Developer Environment](https://ucc.readthedocs.io/en/latest/contributing.html#setting-up-your-development-environment)  
         [Writing a Custom Transpiler Pass](https://ucc.readthedocs.io/en/latest/user_guide.html#writing-a-custom-pass) 
         -We use "transpiler pass" to refer to transformations that act only on the Directed Acyclic Graph (DAG) representation of the quantum circuit. Higher or lower-level optimizations (e.g. algorithm-level or pulse-level, respectively), we call "compiler passes."
-      validations:
-        required: false
+    validations:
+      required: false
