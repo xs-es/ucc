@@ -80,7 +80,8 @@ body:
           - Relative errors in simulated expectation values for a defined set of observables (lower is better)
         
         Your new pass should improve one or more of these metrics on our existing benchmark suite.  
-        **Note:** If you are introducing a technique whose effect on performance is not currently measurable by our [benchmark suite](https://github.com/unitaryfoundation/ucc-bench/tree/main/benchmarks) (e.g. a new qubit mapping pass that performs very well on sparsely connected qubit layouts), let us know and we can work with you to add the metric into [ucc-bench](github.com/unitaryfoundation/ucc-bench).
+        
+        > **Note:** If you are introducing a technique whose effect on performance is not currently measurable by our [benchmark suite](https://github.com/unitaryfoundation/ucc-bench/tree/main/benchmarks) (e.g. a new qubit mapping pass that performs very well on sparsely connected qubit layouts), let us know and we can work with you to add the metric into [ucc-bench](github.com/unitaryfoundation/ucc-bench).
         
         #### When you are ready to run benchmarks...  
         
