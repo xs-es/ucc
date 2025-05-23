@@ -2,7 +2,7 @@
 name: New compiler pass
 about: Propose a new compilation pass to be integrated into UCC.
 title: '[NEW PASS] '
-labels: 'compiler-pass'
+labels: 'New compiler pass'
 assignees: ''
 
 ---
