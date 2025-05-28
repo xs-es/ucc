@@ -39,7 +39,7 @@ def compile(
     Args:
         circuit (object): The quantum circuit to be compiled.
         return_format (str): The format in which your circuit will be returned.
-            e.g., "TKET", "OpenQASM2". Check ``ucc.supported_circuit_formats()``.
+            e.g., "TKET", "OpenQASM2". Check ``ucc.supported_circuit_formats``.
             Defaults to the format of the input circuit.
         target_gateset (set[str]): (optional) The gateset to compile the circuit to.
             e.g. {"cx", "rx",...}. Defaults to the gateset of the target device, or if none is provided, {"cx", "rz", "rx", "ry", "h"}.
