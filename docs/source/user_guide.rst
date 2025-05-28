@@ -20,7 +20,7 @@ Basic usage
 
 To use UCC, one must first specify a circuit in a supported format.
 For basic usage, the circuit of interest is simply input into the function ``ucc.compile()``.
-The output of ``ucc.compile()`` is a transpiled circuit that is logically equivalent to the input circuit but with reduced gate counts (and by default returned in the same format) as the input circuit.
+The output of ``ucc.compile()`` is a transpiled circuit that is logically equivalent to the input circuit but with reduced gate counts (and by default returned in the same format as the input circuit).
 For example, we can define a random circuit in Qiskit and optimize it using the default settings of ``ucc.compile()``, as shown in the following example.
 
 ..
@@ -28,7 +28,7 @@ For example, we can define a random circuit in Qiskit and optimize it using the 
    doctest extension of sphinx to test this code actually runs and any output
    matches. The ELLIPSIS directive (and the use of ... in the expected output) of
    the testoutput block avoids us needing to explicitly have the gate count, which
-   is liable to change as ucc changes over time
+   is subject to change as ucc changes over time.
 
 .. testcode::
 
@@ -56,7 +56,7 @@ For example, we can define a random circuit in Qiskit and optimize it using the 
 Default Compilation Passes
 **************************
 
-When compiling, UCC uses a set of pre-defined qiskit passes set of compilation passes specified in ``ucc.transpilers.ucc_defaults.UCCDefault1``.
+When compiling, UCC uses a set of pre-defined qiskit passes set of compilation passes specified in ``ucc.ucc_defaults.UCCDefault1``.
 These were chosen based on their good default performance on a set of input circuits. The vision for UCC is
 to iterate and improve on these defaults, following the process in :doc:`contributing`.
 
@@ -74,12 +74,14 @@ UCC settings can be adjusted using the keyword arguments of the ``ucc.compile()`
    ucc.compile(
        circuit,
        return_format="original",
+       target_gateset=None,
        target_device=None,
        custom_passes=None
    )
 
 
-- ``return_format`` is the format in which the input circuit will be returned, e.g. "TKET" or "OpenQASM2". Check ``ucc.supported_circuit_formats()`` for supported circuit formats. Default is the format of input circuit.
+- ``return_format`` is the format in which the input circuit will be returned, e.g. "TKET" or "OpenQASM2". Check ``ucc.supported_circuit_formats`` for supported circuit formats. Default is the format of input circuit.
+- ``target_gateset`` is the gateset to compile the circuit to, e.g. {"cx", "rx",...}. Defaults to the gateset of the target device, or if none is provided, {"cx", "rz", "rx", "ry", "h"}.
 - ``target_device`` can be specified as a Qiskit backend or coupling map, or a list of connections between qubits. If None, all-to-all connectivity is assumed. If a Qiskit backend or coupling map is specified, only the coupling list extracted from the backend is used.
 - ``custom_passes`` can be a list of Qiskit ``TransformationPass`` to run after the default set of passes in ``UCCDefault1``.
 
