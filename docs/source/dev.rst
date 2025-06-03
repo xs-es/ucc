@@ -18,8 +18,8 @@ To release a new version of ``ucc`` on GitHub, follow the steps below.
     - Update the ``CHANGELOG.md`` file with all new changes, improvements, and bug fixes since the previous release.
     - You can generate an initial set of release notes using GitHub's `draft a release <https://github.com/unitaryfoundation/ucc/releases/new>`_.
       Note that you are doing this before the actual release tag, since you want the ``CHANGELOG.md`` contents to be updated as of the release tag.
-      So for now, you'd just point to the latest hash of the main branch to auto-generate the release notes, but do NOT publish the release yet.
-      That will happen in step 5 below.
+      So you can add a new tag in the edit box, but do NOT publish the release yet (which would create the tag and the release.)
+      Those should wait until step 5 below.
 
 3. **Commit Changes:**
     - Commit the changes to ``pyproject.toml`` and `CHANGELOG.md` and open a PR to get the changes reviewed.
