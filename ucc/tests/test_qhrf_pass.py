@@ -9,11 +9,9 @@ UnitaryHACK 2025 Bounty Submission
 """
 
 import pytest
-import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit.converters import circuit_to_dag, dag_to_circuit
 from qiskit.transpiler import PassManager
-from qiskit.circuit.library import CXGate, RZGate, HGate
 
 # Import the QHRF pass - adjust import path based on actual UCC structure
 try:
@@ -209,7 +207,7 @@ class TestQHRFHarmonicResonancePass:
         circuit.y(0)
         circuit.z(1)
         
-        original_size = circuit.size()
+        #original_size = circuit.size()
         
         qhrf_pass = QHRFHarmonicResonancePass()
         dag = circuit_to_dag(circuit)
@@ -232,8 +230,8 @@ class TestQHRFHarmonicResonancePass:
         circuit.x(0)
         
         qhrf_pass = QHRFHarmonicResonancePass()
-        dag = circuit_to_dag(circuit)
-        optimized_dag = qhrf_pass.run(dag)
+       # dag = circuit_to_dag(circuit)
+        #optimized_dag = qhrf_pass.run(dag)
         
         stats = qhrf_pass.get_optimization_statistics()
         # No CNOTs possible in single-qubit circuit
@@ -248,7 +246,7 @@ class TestQHRFHarmonicResonancePass:
         circuit.cx(1, 2)
         circuit.rz(0.5, 2)
         
-        original_cnots = circuit.count_ops().get('cx', 0)
+        #original_cnots = circuit.count_ops().get('cx', 0)
         
         # Create pass manager with QHRF pass
         pm = PassManager([QHRFHarmonicResonancePass()])
