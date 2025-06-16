@@ -17,10 +17,10 @@ UnitaryHACK 2025 Bounty Submission
 
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.dagcircuit import DAGCircuit, DAGNode
-from qiskit.circuit.library import RZGate, CXGate, IGate, HGate
+from qiskit.circuit.library import CXGate, IGate
 from qiskit.circuit import QuantumCircuit
 from qiskit.converters import circuit_to_dag
-from typing import List, Dict
+from typing import Dict
 import numpy as np
 
 
