@@ -5,3 +5,4 @@ from .compile import (
 
 from .transpilers.ucc_defaults import UCCDefault1 as UCCDefault1
 from ucc._version import __version__ as __version__
+from .qhrf_pass import QHRFPhaseLockPass
