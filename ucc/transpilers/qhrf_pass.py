@@ -30,10 +30,10 @@ quantum compiler research.
 
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.dagcircuit import DAGCircuit, DAGNode
-from qiskit.circuit.library import RZGate, CXGate, RYGate, IGate
+from qiskit.circuit.library import RZGate, CXGate, RYGate
 from qiskit.circuit import QuantumCircuit
 from qiskit.converters import circuit_to_dag
-from typing import List, Optional
+from typing import List
 import numpy as np
 
 
@@ -285,10 +285,9 @@ class QHRFPhaseLockPass(TransformationPass):
 
 # === TEST HARNESS ===
 if __name__ == '__main__':
-    from qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit
+    from qiskit import QuantumCircuit
     from qiskit.transpiler import PassManager
     from qiskit.quantum_info import Statevector
-    from qiskit.transpiler.passes import Optimize1qGates, CommutativeCancellation
     import numpy as np
 
     def test_logical_equivalence(original, optimized, test_name):
@@ -305,10 +304,10 @@ if __name__ == '__main__':
             print(f"  State fidelity: {fidelity:.8f}")
             
             if equiv and fidelity > 0.9999:
-                print(f"  ✅ PASSED")
+                print("  ✅ PASSED")
                 return True
             else:
-                print(f"  ❌ FAILED - Logical equivalence broken!")
+                print("  ❌ FAILED - Logical equivalence broken!")
                 return False
         except Exception as e:
             print(f"{test_name}: ERROR - {e}")
@@ -334,8 +333,8 @@ if __name__ == '__main__':
     pass_manager = PassManager([QHRFPhaseLockPass()])
     optimized1 = pass_manager.run(circuit1)
     
-    print(f"   Original CNOTs: {circuit1.count_ops().get('cx', 0)}")
-    print(f"   Optimized CNOTs: {optimized1.count_ops().get('cx', 0)}")
+    print(f"   Original CNOTs: {circuit1.count_ops()['cx'] if 'cx' in circuit1.count_ops() else 0}")
+    print(f"   Optimized CNOTs: {optimized1.count_ops()['cx'] if 'cx' in optimized1.count_ops() else 0}")
     
     equiv1 = test_logical_equivalence(circuit1, optimized1, "CNOT Cancellation")
 
@@ -423,10 +422,10 @@ if __name__ == '__main__':
         cnot_savings = original_stats['cnots'] - optimized_stats['cnots']
         depth_savings = original_stats['depth'] - optimized_stats['depth']
         
-        print(f"\n📊 UCC BENCHMARK PERFORMANCE:")
-        print(f"   Gate reduction: {gate_savings} gates saved")
-        print(f"   2Q gate reduction: {cnot_savings} CNOTs saved")
-        print(f"   Depth reduction: {depth_savings} layers saved")
+        print("\n📊 UCC BENCHMARK PERFORMANCE:")
+        print("   Gate reduction: {gate_savings} gates saved")
+        print("   2Q gate reduction: {cnot_savings} CNOTs saved")
+        print("   Depth reduction: {depth_savings} layers saved")
         
         if gate_savings > 0 or cnot_savings > 0 or depth_savings > 0:
             print("   ✅ Meets UCC performance requirements")
